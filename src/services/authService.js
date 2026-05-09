@@ -8,6 +8,9 @@ import {
   updateProfile,
   sendEmailVerification,
   sendPasswordResetEmail,
+  verifyPasswordResetCode,
+  confirmPasswordReset,
+  applyActionCode,
 } from 'firebase/auth'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase/config'
@@ -79,5 +82,23 @@ export async function sendVerificationEmail(user) {
 }
 
 export async function resetPassword(email) {
-  await sendPasswordResetEmail(auth, email, { url: window.location.origin + '/login' })
+  await sendPasswordResetEmail(auth, email, { url: window.location.origin + '/reset-password' })
+}
+
+export async function verifyResetCode(oobCode) {
+  const email = await verifyPasswordResetCode(auth, oobCode)
+  return email
+}
+
+export async function confirmResetPassword(oobCode, newPassword) {
+  await confirmPasswordReset(auth, oobCode, newPassword)
+}
+
+export async function applyVerificationCode(oobCode) {
+  await applyActionCode(auth, oobCode)
+}
+
+export async function reloadCurrentUser() {
+  await auth.currentUser?.reload()
+  return auth.currentUser
 }

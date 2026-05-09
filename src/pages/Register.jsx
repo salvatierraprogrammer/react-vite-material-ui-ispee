@@ -24,10 +24,14 @@ export default function Register() {
     if (form.password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); return }
     try {
       const user = await registerUser({ email: form.email, password: form.password, name: form.name, lastName: form.lastName })
-      sendVerificationEmail(user).catch(() => {})
+      try {
+        await sendVerificationEmail(user)
+      } catch (emailErr) {
+        setError('Error al enviar el email de verificación. Podés reenviarlo desde el inicio de sesión.')
+      }
       const displayName = `${form.name} ${form.lastName}`.trim()
       dispatch(setUser({ uid: user.uid, name: displayName, email: form.email, photoURL: '' }))
-      dispatch(showSnackbar({ message: `¡Bienvenida a Apuntes ISPEE, ${form.name}! Revisá tu email para verificar la cuenta.`, severity: 'success' }))
+      dispatch(showSnackbar({ message: `¡Bienvenido a Apuntes ISPEE, ${form.name}! Revisá tu email para verificar la cuenta.`, severity: 'success' }))
       navigate('/')
     } catch (err) {
       if (err.code === 'auth/email-already-in-use') setError('Este email ya está registrado')

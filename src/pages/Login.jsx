@@ -1,10 +1,10 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useSearchParams, Link as RouterLink } from 'react-router-dom'
-import { Box, Typography, TextField, Button, Paper, Divider, IconButton, InputAdornment, Alert, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
+import { Box, Typography, TextField, Button, Paper, Divider, IconButton, InputAdornment, Alert, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from '@mui/material'
 import { Google, Visibility, VisibilityOff, AutoStoriesOutlined } from '@mui/icons-material'
-import { loginUser, loginWithGoogle, sendVerificationEmail, resetPassword } from '../services/authService'
-import { setUser } from '../redux/slices/authSlice'
+import { loginUser, loginWithGoogle, sendVerificationEmail, resetPassword, applyVerificationCode, reloadCurrentUser } from '../services/authService'
+import { setUser, clearUser } from '../redux/slices/authSlice'
 import { showSnackbar } from '../redux/slices/uiSlice'
 
 export default function Login() {
@@ -22,21 +22,43 @@ export default function Login() {
   const [resetLoading, setResetLoading] = useState(false)
 
   const [verifyWarning, setVerifyWarning] = useState(false)
+  const [verifyLoading, setVerifyLoading] = useState(false)
   const verifyUserRef = useRef(null)
+
+  const [verifyingCode, setVerifyingCode] = useState(false)
+  const [verifySuccess, setVerifySuccess] = useState(false)
+  const [verifyError, setVerifyError] = useState('')
+
+  useEffect(() => {
+    const mode = searchParams.get('mode')
+    const oobCode = searchParams.get('oobCode')
+    if (mode === 'verifyEmail' && oobCode) {
+      setVerifyingCode(true)
+      applyVerificationCode(oobCode)
+        .then(() => { setVerifySuccess(true); setVerifyingCode(false) })
+        .catch((err) => {
+          if (err.code === 'auth/expired-action-code') setVerifyError('El enlace de verificación expiró. Iniciá sesión para reenviarlo.')
+          else setVerifyError('Error al verificar el email. El enlace podría no ser válido.')
+          setVerifyingCode(false)
+        })
+    }
+  }, [searchParams])
 
   const handleChange = (f) => (e) => setForm((p) => ({ ...p, [f]: e.target.value }))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setVerifySuccess(false)
     try {
       const user = await loginUser(form)
       dispatch(setUser({ uid: user.uid, name: user.displayName, email: user.email, photoURL: user.photoURL }))
-      dispatch(showSnackbar({ message: `Bienvenido de nuevo, ${user.displayName || 'Usuario'}`, severity: 'success' }))
       if (!user.emailVerified) {
         verifyUserRef.current = user
         setVerifyWarning(true)
+        dispatch(showSnackbar({ message: 'Email no verificado. Revisá tu bandeja de entrada.', severity: 'warning' }))
       } else {
+        dispatch(showSnackbar({ message: `Bienvenido de nuevo, ${user.displayName || 'Usuario'}`, severity: 'success' }))
         navigate(searchParams.get('redirect') || '/')
       }
     } catch (err) {
@@ -67,6 +89,26 @@ export default function Login() {
     }
   }
 
+  const handleCheckVerification = async () => {
+    if (!verifyUserRef.current) return
+    setVerifyLoading(true)
+    try {
+      const user = await reloadCurrentUser()
+      if (user?.emailVerified) {
+        setVerifyWarning(false)
+        dispatch(setUser({ uid: user.uid, name: user.displayName, email: user.email, photoURL: user.photoURL }))
+        dispatch(showSnackbar({ message: 'Email verificado exitosamente', severity: 'success' }))
+        navigate(searchParams.get('redirect') || '/')
+      } else {
+        dispatch(showSnackbar({ message: 'Todavía no está verificado. Revisá tu email.', severity: 'info' }))
+      }
+    } catch {
+      dispatch(showSnackbar({ message: 'Error al verificar el estado', severity: 'error' }))
+    } finally {
+      setVerifyLoading(false)
+    }
+  }
+
   const handleResetPassword = async () => {
     if (!resetEmail) return
     setResetLoading(true)
@@ -90,35 +132,55 @@ export default function Login() {
             </Box>
             <Typography sx={{ fontSize: 18, fontWeight: 800 }}>Apuntes ISPEE</Typography>
           </Box>
-          <Typography sx={{ fontSize: 20, fontWeight: 700, mb: 0.5 }}>Bienvenido de nuevo</Typography>
-          <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>Iniciá sesión para continuar</Typography>
+          <Typography sx={{ fontSize: 20, fontWeight: 700, mb: 0.5 }}>
+            {verifySuccess ? 'Email verificado' : 'Bienvenido de nuevo'}
+          </Typography>
+          <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
+            {verifySuccess ? 'Tu email fue verificado correctamente. Iniciá sesión.' : 'Iniciá sesión para continuar'}
+          </Typography>
         </Box>
 
+        {verifyingCode && <Box sx={{ textAlign: 'center', mb: 2 }}><CircularProgress size={24} /></Box>}
+        {verifySuccess && <Alert severity="success" sx={{ mb: 2, borderRadius: '8px', fontSize: 12 }}>Email verificado correctamente. Ya podés iniciar sesión.</Alert>}
+        {verifyError && <Alert severity="error" sx={{ mb: 2, borderRadius: '8px', fontSize: 12 }}>{verifyError}</Alert>}
         {error && <Alert severity="error" sx={{ mb: 2, borderRadius: '8px', fontSize: 12 }}>{error}</Alert>}
         {verifyWarning && (
           <Alert severity="warning" sx={{ mb: 2, borderRadius: '8px', fontSize: 12 }}
-            action={<Button size="small" sx={{ fontSize: 10 }} onClick={handleResendVerification}>Reenviar</Button>}>
+            action={
+              <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <Button size="small" sx={{ fontSize: 10 }} onClick={handleCheckVerification} disabled={verifyLoading}>
+                  {verifyLoading ? '…' : 'Ya verifiqué'}
+                </Button>
+                <Button size="small" sx={{ fontSize: 10 }} onClick={handleResendVerification}>Reenviar</Button>
+              </Box>
+            }>
             Email no verificado. Revisá tu bandeja de entrada.
           </Alert>
         )}
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField label="Email" type="email" value={form.email} onChange={handleChange('email')} fullWidth size="small" required />
-          <TextField label="Contraseña" type={showPw ? 'text' : 'password'} value={form.password} onChange={handleChange('password')} fullWidth size="small" required
-            slotProps={{ input: { endAdornment: <InputAdornment position="end"><IconButton onClick={() => setShowPw(!showPw)} edge="end" size="small">{showPw ? <VisibilityOff sx={{ fontSize: 16 }} /> : <Visibility sx={{ fontSize: 16 }} />}</IconButton></InputAdornment> }}} />
-          <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ py: 0.75, fontSize: 13, borderRadius: '8px' }}>
-            {loading ? 'Iniciando sesión…' : 'Iniciar sesión'}
-          </Button>
-          <Button size="small" sx={{ fontSize: 11, color: 'text.secondary', textTransform: 'none', alignSelf: 'flex-end', mt: -0.5 }} onClick={() => { setResetEmail(form.email); setResetOpen(true) }}>
-            ¿Olvidaste tu contraseña?
-          </Button>
-        </Box>
+        {!verifySuccess && (
+          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField label="Email" type="email" value={form.email} onChange={handleChange('email')} fullWidth size="small" required />
+            <TextField label="Contraseña" type={showPw ? 'text' : 'password'} value={form.password} onChange={handleChange('password')} fullWidth size="small" required
+              slotProps={{ input: { endAdornment: <InputAdornment position="end"><IconButton onClick={() => setShowPw(!showPw)} edge="end" size="small">{showPw ? <VisibilityOff sx={{ fontSize: 16 }} /> : <Visibility sx={{ fontSize: 16 }} />}</IconButton></InputAdornment> }}} />
+            <Button type="submit" variant="contained" fullWidth disabled={loading || verifyingCode} sx={{ py: 0.75, fontSize: 13, borderRadius: '8px' }}>
+              {loading ? 'Iniciando sesión…' : 'Iniciar sesión'}
+            </Button>
+            <Button size="small" sx={{ fontSize: 11, color: 'text.secondary', textTransform: 'none', alignSelf: 'flex-end', mt: -0.5 }} onClick={() => { setResetEmail(form.email); setResetOpen(true) }}>
+              ¿Olvidaste tu contraseña?
+            </Button>
+          </Box>
+        )}
 
-        <Divider sx={{ my: 2 }}><Typography sx={{ fontSize: 11, color: 'text.secondary', px: 1 }}>O continuá con</Typography></Divider>
+        {!verifySuccess && (
+          <>
+            <Divider sx={{ my: 2 }}><Typography sx={{ fontSize: 11, color: 'text.secondary', px: 1 }}>O continuá con</Typography></Divider>
 
-        <Button variant="outlined" fullWidth onClick={handleGoogle} startIcon={<Google sx={{ fontSize: 16 }} />} sx={{ fontSize: 12.5, py: 0.75, borderRadius: '8px' }}>
-          Google
-        </Button>
+            <Button variant="outlined" fullWidth onClick={handleGoogle} startIcon={<Google sx={{ fontSize: 16 }} />} sx={{ fontSize: 12.5, py: 0.75, borderRadius: '8px' }}>
+              Google
+            </Button>
+          </>
+        )}
 
         <Typography sx={{ textAlign: 'center', fontSize: 12.5, mt: 2.5, color: 'text.secondary' }}>
           ¿No tenés cuenta?{' '}

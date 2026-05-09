@@ -14,6 +14,7 @@ const Perfil = lazy(() => import('../pages/Perfil'))
 const MaterialDetail = lazy(() => import('../pages/MaterialDetail'))
 const Login = lazy(() => import('../pages/Login'))
 const Register = lazy(() => import('../pages/Register'))
+const ResetPassword = lazy(() => import('../pages/ResetPassword'))
 
 function Lazy({ children }) {
   return <Suspense fallback={<Loading />}>{children}</Suspense>
@@ -29,6 +30,7 @@ export default function AppRouter() {
       <Routes>
         <Route path="/login" element={<Lazy><Login /></Lazy>} />
         <Route path="/register" element={<Lazy><Register /></Lazy>} />
+        <Route path="/reset-password" element={<Lazy><ResetPassword /></Lazy>} />
         <Route element={<MainLayout />}>
           <Route path="/" element={<Lazy><Home /></Lazy>} />
           <Route path="/materias" element={<Lazy><Materias /></Lazy>} />
