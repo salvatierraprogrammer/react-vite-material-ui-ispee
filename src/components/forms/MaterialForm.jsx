@@ -7,6 +7,25 @@ import { formatFileSize } from '../../utils/helpers'
 const ALLOWED_EXTS = ['pdf', 'docx', 'pptx']
 const MAX_SIZE = 20 * 1024 * 1024
 
+const SELECT_MENU_PROPS = {
+  disablePortal: false,
+  sx: {
+    zIndex: 9999,
+    '& .MuiPaper-root': {
+      zIndex: 9999,
+      maxHeight: { xs: 200, sm: 280, md: 320 },
+      boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+      border: '1px solid',
+      borderColor: 'divider',
+      borderRadius: '10px',
+      mt: 0.5,
+    },
+  },
+  anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+  transformOrigin: { vertical: 'top', horizontal: 'left' },
+  marginThreshold: 4,
+}
+
 const fileIcons = { pdf: PictureAsPdfOutlined, docx: DescriptionOutlined, pptx: SlideshowOutlined }
 const fileColors = { pdf: '#EF4444', docx: '#2563EB', pptx: '#EA580C' }
 
@@ -79,16 +98,16 @@ export default function MaterialForm({ initialData, onSubmit, loading }) {
           <CategoryOutlined sx={{ fontSize: 15, color: 'primary.main' }} /> Clasificación
         </Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5, mb: 1.5 }}>
-          <TextField select label="Año" value={form.year} onChange={handleChange('year')} error={!!errors.year} helperText={errors.year} size="small" slotProps={{ inputLabel: { shrink: true } }} SelectProps={{ displayEmpty: true }}>
+          <TextField select label="Año" value={form.year} onChange={handleChange('year')} error={!!errors.year} helperText={errors.year} size="small" slotProps={{ inputLabel: { shrink: true } }} SelectProps={{ displayEmpty: true, MenuProps: SELECT_MENU_PROPS }}>
             <MenuItem value="" disabled sx={{ fontSize: 13, color: 'text.secondary' }}>Seleccioná un año</MenuItem>
             {years.map((y) => <MenuItem key={y.id} value={y.id} sx={{ fontSize: 13 }}>{y.name}</MenuItem>)}
           </TextField>
-          <TextField select label="Materia" value={form.subject} onChange={handleChange('subject')} error={!!errors.subject} helperText={errors.subject} size="small" slotProps={{ inputLabel: { shrink: true } }} SelectProps={{ displayEmpty: true }}>
+          <TextField select label="Materia" value={form.subject} onChange={handleChange('subject')} error={!!errors.subject} helperText={errors.subject} size="small" slotProps={{ inputLabel: { shrink: true } }} SelectProps={{ displayEmpty: true, MenuProps: SELECT_MENU_PROPS }}>
             <MenuItem value="" disabled sx={{ fontSize: 13, color: 'text.secondary' }}>Seleccioná una materia</MenuItem>
             {subjects.filter((s) => !form.year || s.year === form.year).map((s) => <MenuItem key={s.id} value={s.name} sx={{ fontSize: 13 }}>{s.name}</MenuItem>)}
           </TextField>
         </Box>
-        <TextField select label="Tipo de material" value={form.type} onChange={handleChange('type')} error={!!errors.type} helperText={errors.type} size="small" fullWidth slotProps={{ inputLabel: { shrink: true } }} SelectProps={{ displayEmpty: true }}>
+        <TextField select label="Tipo de material" value={form.type} onChange={handleChange('type')} error={!!errors.type} helperText={errors.type} size="small" fullWidth slotProps={{ inputLabel: { shrink: true } }} SelectProps={{ displayEmpty: true, MenuProps: SELECT_MENU_PROPS }}>
           <MenuItem value="" disabled sx={{ fontSize: 13, color: 'text.secondary' }}>Seleccioná un tipo</MenuItem>
           {materialTypes.map((t) => <MenuItem key={t.id} value={t.value} sx={{ fontSize: 13 }}>{t.name}</MenuItem>)}
         </TextField>

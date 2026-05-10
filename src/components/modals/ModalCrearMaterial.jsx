@@ -73,6 +73,12 @@ export default function ModalCrearMaterial({ open, onClose }) {
       maxWidth="md"
       fullWidth
       slotProps={{
+        backdrop: {
+          sx: {
+            backdropFilter: 'none',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+          },
+        },
         paper: {
           sx: {
             borderRadius: { xs: 0, sm: '16px' },
@@ -80,6 +86,8 @@ export default function ModalCrearMaterial({ open, onClose }) {
             width: { xs: '100%', sm: 'calc(100% - 32px)' },
             height: { xs: '100%', sm: 'auto' },
             maxHeight: { xs: '100%', sm: '90vh' },
+            overflow: { xs: 'hidden', sm: 'hidden' },
+            transform: 'none',
           }
         }
       }}

@@ -56,8 +56,41 @@ const componentOverrides = {
   MuiChip: {
     styleOverrides: { root: { borderRadius: 6, fontWeight: 500 } },
   },
+  MuiModal: {
+    styleOverrides: {
+      backdrop: {
+        backdropFilter: 'none',
+      },
+    },
+  },
   MuiDialog: {
     styleOverrides: { paper: { borderRadius: 16 } },
+  },
+  MuiMenu: {
+    styleOverrides: {
+      paper: {
+        zIndex: 9999,
+        maxHeight: { xs: 200, sm: 280, md: 320 },
+        boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: '10px',
+      },
+      list: {
+        paddingTop: 4,
+        paddingBottom: 4,
+      },
+    },
+  },
+  MuiPopper: {
+    defaultProps: {
+      disablePortal: false,
+    },
+    styleOverrides: {
+      root: {
+        zIndex: '9999 !important',
+      },
+    },
   },
   MuiDrawer: {
     styleOverrides: { paper: { border: 'none' } },
