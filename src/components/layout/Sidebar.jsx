@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Typography, Button, Divider, useMediaQuery, useTheme } from '@mui/material'
 import { HomeOutlined, SchoolOutlined, FavoriteBorderOutlined, UploadFileOutlined, ChatOutlined, ForumOutlined, AutoStoriesOutlined } from '@mui/icons-material'
 import { setSidebarOpen } from '../../redux/slices/uiSlice'
 import { DRAWER_WIDTH } from '../../constants'
+import GuestModal from '../auth/GuestModal'
 
 const nav = [
   { label: 'Inicio', icon: HomeOutlined, path: '/' },
@@ -17,6 +19,8 @@ const nav = [
 function SidebarContent({ onNavigate }) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { isAuthenticated } = useSelector((s) => s.auth)
+  const [guestOpen, setGuestOpen] = useState(false)
   const go = (path) => { navigate(path); onNavigate?.() }
 
   return (
@@ -46,8 +50,9 @@ function SidebarContent({ onNavigate }) {
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ mx: 1.5, mb: 1.5, p: 1.25, borderRadius: '12px', background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)', textAlign: 'center' }}>
         <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#fff', mb: 0.5 }}>Compartí tus apuntes</Typography>
-        <Button variant="contained" fullWidth size="small" onClick={() => go('/?subir=true')} sx={{ backgroundColor: '#fff', color: '#8B5CF6', fontWeight: 700, fontSize: 11, py: 0.5, minHeight: 0, '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' } }}>Subir material</Button>
+        <Button variant="contained" fullWidth size="small" onClick={() => isAuthenticated ? go('/?subir=true') : setGuestOpen(true)} sx={{ backgroundColor: '#fff', color: '#8B5CF6', fontWeight: 700, fontSize: 11, py: 0.5, minHeight: 0, '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' } }}>Subir material</Button>
       </Box>
+      <GuestModal open={guestOpen} onClose={() => setGuestOpen(false)} action="subir materiales" />
     </Box>
   )
 }

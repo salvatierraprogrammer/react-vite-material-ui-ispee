@@ -8,7 +8,7 @@ export default function RecentUploads({ materials }) {
         <Typography sx={{ fontSize: 15, fontWeight: 700 }}>Subidas recientes</Typography>
         <Typography sx={{ fontSize: 11, color: 'primary.main', fontWeight: 600, cursor: 'pointer' }}>Ver todos →</Typography>
       </Box>
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 2 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2 }}>
         {materials.slice(0, 8).map((m) => <MaterialCard key={m.id} material={m} />)}
       </Box>
     </Box>

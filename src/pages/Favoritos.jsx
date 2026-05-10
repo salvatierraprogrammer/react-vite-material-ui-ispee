@@ -24,7 +24,7 @@ export default function Favoritos() {
       {favorites.length === 0 ? (
         <EmptyState icon={FavoriteBorder} title="Sin favoritos" description="Guardá tus materiales favoritos para tenerlos siempre a mano." />
       ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2 }}>
           {favorites.map((m) => <MaterialCard key={m.id} material={m} />)}
         </Box>
       )}

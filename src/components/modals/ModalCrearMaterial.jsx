@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Box, Dialog, DialogTitle, DialogContent, IconButton, Typography } from '@mui/material'
-import { Close } from '@mui/icons-material'
+import { Box, Dialog, DialogTitle, DialogContent, IconButton, Typography, LinearProgress } from '@mui/material'
+import { Close, CloudUploadOutlined } from '@mui/icons-material'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
 import MaterialForm from '../forms/MaterialForm'
@@ -14,13 +14,20 @@ export default function ModalCrearMaterial({ open, onClose }) {
   const dispatch = useDispatch()
   const { currentUser } = useSelector((state) => state.auth)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   const handleSubmit = async (formData) => {
+    if (!currentUser?.uid) {
+      dispatch(showSnackbar({ message: 'Debés iniciar sesión para subir materiales', severity: 'warning' }))
+      onClose()
+      return
+    }
     setUploading(true)
+    setUploadProgress(0)
     try {
       let fileData = {}
       if (formData.file) {
-        const result = await uploadFile(formData.file, currentUser?.uid)
+        const result = await uploadFile(formData.file, currentUser?.uid, (pct) => setUploadProgress(pct))
       fileData = {
         fileName: result.fileName,
         fileSize: result.fileSize,
@@ -29,6 +36,7 @@ export default function ModalCrearMaterial({ open, onClose }) {
         filePath: result.path,
       }
       }
+      setUploadProgress(95)
       await dispatch(addMaterial({
         ...formData,
         ...fileData,
@@ -54,19 +62,54 @@ export default function ModalCrearMaterial({ open, onClose }) {
       dispatch(showSnackbar({ message: 'Error al subir material', severity: 'error' }))
     } finally {
       setUploading(false)
+      setUploadProgress(0)
     }
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth slotProps={{ paper: { sx: { borderRadius: '16px' } } }}>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0.75 }}>
-        <Box>
-          <Typography sx={{ fontWeight: 700, fontSize: 17 }}>Subir nuevo material</Typography>
-          <Typography sx={{ fontSize: 12, color: 'text.secondary', mt: 0.25 }}>Compartí tus apuntes con la comunidad ISPEE</Typography>
+    <Dialog
+      open={open}
+      onClose={uploading ? undefined : onClose}
+      maxWidth="md"
+      fullWidth
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: { xs: 0, sm: '16px' },
+            margin: { xs: 0, sm: 2 },
+            width: { xs: '100%', sm: 'calc(100% - 32px)' },
+            height: { xs: '100%', sm: 'auto' },
+            maxHeight: { xs: '100%', sm: '90vh' },
+          }
+        }
+      }}
+    >
+      {uploading && <LinearProgress variant="determinate" value={uploadProgress} sx={{ position: 'absolute', top: 0, left: 0, right: 0, borderRadius: { xs: 0, sm: '16px 16px 0 0' }, height: 3 }} />}
+      <DialogTitle sx={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+        pt: { xs: 2, sm: 2.5 }, pb: 1,
+        px: { xs: 2, sm: 3 },
+        borderBottom: 1, borderColor: 'divider',
+        bgcolor: 'background.default'
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box sx={{ width: 38, height: 38, borderRadius: '10px', background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)', display: { xs: 'none', sm: 'flex' }, alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <CloudUploadOutlined sx={{ color: '#fff', fontSize: 20 }} />
+          </Box>
+          <Box>
+            <Typography sx={{ fontWeight: 700, fontSize: { xs: 16, sm: 17 } }}>Subir nuevo material</Typography>
+            <Typography sx={{ fontSize: 12, color: 'text.secondary', mt: 0.25 }}>Compartí tus apuntes con la comunidad ISPEE</Typography>
+          </Box>
         </Box>
-        <IconButton onClick={onClose} size="small"><Close /></IconButton>
+        <IconButton onClick={onClose} size="small" disabled={uploading} sx={{ mt: -0.5, mr: -0.5 }}><Close /></IconButton>
       </DialogTitle>
-      <DialogContent sx={{ pt: 1.5 }}>
+      <DialogContent sx={{
+        pt: { xs: 2, sm: 2.5 },
+        px: { xs: 2, sm: 3 },
+        pb: { xs: 2, sm: 3 },
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+      }}>
         <MaterialForm onSubmit={handleSubmit} loading={uploading} />
       </DialogContent>
     </Dialog>

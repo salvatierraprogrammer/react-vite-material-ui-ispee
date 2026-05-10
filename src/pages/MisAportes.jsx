@@ -34,7 +34,7 @@ export default function MisAportes() {
       {myMaterials.length === 0 ? (
         <EmptyState title="Sin aportes" description="Todavía no subiste ningún material. ¡Compartí tus apuntes!" />
       ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2 }}>
           {myMaterials.map((m) => (
             <Box key={m.id} sx={{ position: 'relative', '&:hover .actions': { opacity: 1 } }}>
               <MaterialCard material={m} actions={
