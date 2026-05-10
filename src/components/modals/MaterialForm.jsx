@@ -42,7 +42,7 @@ export default function MaterialForm({ initialData, onSubmit, loading }) {
           {years.map((y) => <MenuItem key={y.id} value={y.id}>{y.name}</MenuItem>)}
         </TextField>
         <TextField select label="Materia" value={form.subject} onChange={handleChange('subject')} error={!!errors.subject} helperText={errors.subject} size="small">
-          {subjects.filter((s) => !form.year || s.year === form.year).map((s) => <MenuItem key={s.id} value={s.name}>{s.name}</MenuItem>)}
+          {(subjects || []).map((s) => <MenuItem key={s.id} value={s.name}>{s.name}</MenuItem>)}
         </TextField>
       </Box>
       <TextField select label="Tipo" value={form.type} onChange={handleChange('type')} error={!!errors.type} helperText={errors.type} size="small">

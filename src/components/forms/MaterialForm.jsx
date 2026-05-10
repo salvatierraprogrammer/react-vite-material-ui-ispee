@@ -104,7 +104,7 @@ export default function MaterialForm({ initialData, onSubmit, loading }) {
           </TextField>
           <TextField select label="Materia" value={form.subject} onChange={handleChange('subject')} error={!!errors.subject} helperText={errors.subject} size="small" slotProps={{ inputLabel: { shrink: true } }} SelectProps={{ displayEmpty: true, MenuProps: SELECT_MENU_PROPS }}>
             <MenuItem value="" disabled sx={{ fontSize: 13, color: 'text.secondary' }}>Seleccioná una materia</MenuItem>
-            {subjects.filter((s) => !form.year || s.year === form.year).map((s) => <MenuItem key={s.id} value={s.name} sx={{ fontSize: 13 }}>{s.name}</MenuItem>)}
+            {(subjects || []).map((s) => <MenuItem key={s.id} value={s.name} sx={{ fontSize: 13 }}>{s.name}</MenuItem>)}
           </TextField>
         </Box>
         <TextField select label="Tipo de material" value={form.type} onChange={handleChange('type')} error={!!errors.type} helperText={errors.type} size="small" fullWidth slotProps={{ inputLabel: { shrink: true } }} SelectProps={{ displayEmpty: true, MenuProps: SELECT_MENU_PROPS }}>
