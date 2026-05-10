@@ -25,26 +25,75 @@ export const materialTypes = [
 ]
 
 export const subjects = [
-  { id: 1, name: 'Pedagogía', year: 1 },
-  { id: 2, name: 'Didáctica General', year: 1 },
-  { id: 3, name: 'Psicología del Desarrollo', year: 1 },
-  { id: 4, name: 'Biología', year: 1 },
-  { id: 5, name: 'Educación Especial', year: 2 },
-  { id: 6, name: 'Psicología del Aprendizaje', year: 2 },
-  { id: 7, name: 'Didáctica Especial', year: 2 },
-  { id: 8, name: 'Sociología de la Educación', year: 2 },
-  { id: 9, name: 'Neurociencia Educativa', year: 3 },
-  { id: 10, name: 'Intervención Pedagógica', year: 3 },
-  { id: 11, name: 'Lengua de Señas', year: 3 },
-  { id: 12, name: 'Tecnología Educativa', year: 3 },
-  { id: 13, name: 'Práctica Docente I', year: 3 },
-  { id: 14, name: 'Práctica Docente II', year: 4 },
-  { id: 15, name: 'Investigación Educativa', year: 4 },
-  { id: 16, name: 'Política Educativa', year: 4 },
-  { id: 17, name: 'Ética Profesional', year: 4 },
-  { id: 18, name: 'Inclusión Educativa', year: 4 },
-]
+  // Instancias iniciales (1)
+  { id: 1, name: 'Psicología Educacional', Campo: 'Formación General' },
+  { id: 2, name: 'Lingüística', Campo: 'Formación General' },
+  { id: 3, name: 'Taller de Lectura, escritura y oralidad', Campo: 'Formación General' },
+  { id: 4, name: 'Educación Especial', Campo: 'Formación General' },
+  { id: 5, name: 'Pedagogía', Campo: 'Formación General' },
+  { id: 6, name: 'Psicología del Desarrollo', Campo: 'Formación General' },
+  { id: 7, name: 'Taller de Nuevas Tecnologías', Campo: 'Formación General' },
 
+  // Materias anuales (*)
+  { id: 8, name: 'Bases Neurobiológicas del Aprendizaje', Campo: 'Formación General' },
+  { id: 9, name: 'Trastornos del desarrollo en DI', Campo: 'Modalidad DI' },
+  { id: 10, name: 'Enseñanza del lenguaje', Campo: 'Formación General' },
+  { id: 11, name: 'Enseñanza de la Matemática', Campo: 'Formación General' },
+
+  // Talleres y materias específicas
+  { id: 12, name: 'Taller de encuadres y Prácticas de Investigación en Educación Especial', Campo: 'Formación General' },
+  { id: 13, name: 'Taller de recursos para la atención de trastornos motrices', Campo: 'Modalidad DI' },
+  { id: 14, name: 'Trastornos Motrices', Campo: 'Modalidad DI' },
+  { id: 15, name: 'Taller de Educación Psicomotriz', Campo: 'Modalidad DI' },
+  { id: 16, name: 'Problemática de la Subjetividad y Discapacidad', Campo: 'Modalidad DI' },
+  { id: 17, name: 'Discapacidad Múltiple', Campo: 'Modalidad DI' },
+  { id: 18, name: 'Taller de Atención temprana', Campo: 'Modalidad DI' },
+  { id: 19, name: 'Comunicación y Lenguaje', Campo: 'Formación General' },
+  { id: 20, name: 'Alteraciones del lenguaje en DI', Campo: 'Modalidad DI' },
+  { id: 21, name: 'Taller de Evaluación Educativa en Educación Especial', Campo: 'Formación General' },
+  { id: 22, name: 'Taller de Alfabetización Inicial', Campo: 'Formación General' },
+  { id: 23, name: 'Taller de expresión corporal', Campo: 'Formación General' },
+  { id: 24, name: 'Taller de arte', Campo: 'Formación General' },
+  { id: 25, name: 'Inclusión Educativa', Campo: 'Formación General' },
+  { id: 26, name: 'Seminario Perspectivas Sociales ante la Diversidad', Campo: 'Formación General' },
+  { id: 27, name: 'Educación del joven y del adulto en el Nivel Superior', Campo: 'Formación General' },
+  { id: 28, name: 'Formación del joven y del adulto, trayectorias ocupacionales en DI', Campo: 'Modalidad DI' },
+  { id: 29, name: 'Seminario de cognición y DI', Campo: 'Modalidad DI' },
+  { id: 30, name: 'Didáctica General', Campo: 'Formación General' },
+  { id: 31, name: 'Enseñanza de las Ciencias Naturales', Campo: 'Formación General' },
+  { id: 32, name: 'Enseñanza de las Ciencias Sociales', Campo: 'Formación General' },
+  { id: 33, name: 'Perspectivas antropológicas de la tercera edad en la DI', Campo: 'Modalidad DI' },
+  { id: 34, name: 'Filosofía', Campo: 'Formación General' },
+  { id: 35, name: 'Nuevos escenarios: Cultura, tecnología y Subjetividad', Campo: 'Formación General' },
+  { id: 36, name: 'Sistema y política educativa', Campo: 'Formación General' },
+  { id: 37, name: 'Educación Sexual Integral', Campo: 'Formación General' },
+  { id: 38, name: 'Seminario Trabajo y Profesionalización docente', Campo: 'Formación General' },
+  { id: 39, name: 'Instituciones Educativas', Campo: 'Formación General' },
+  { id: 40, name: 'Taller de aportes de la tecnología para la educación del DI', Campo: 'Modalidad DI' },
+
+  // Abordajes Pedagógicos (4 niveles)
+  { id: 41, name: 'Abordajes Pedagógicos para el sujeto con DI 1', Campo: 'Modalidad DI' },
+  { id: 42, name: 'Abordajes Pedagógicos para el sujeto con DI 2', Campo: 'Modalidad DI' },
+  { id: 43, name: 'Abordajes Pedagógicos para el sujeto con DI 3', Campo: 'Modalidad DI' },
+  { id: 44, name: 'Abordajes Pedagógicos para el sujeto con DI 4', Campo: 'Modalidad DI' },
+
+  // Talleres de Prácticas Profesionales (TPP 1 a 8)
+  { id: 45, name: 'Taller de Prácticas Profesionales 1', Campo: 'Formación General / Práctica' },
+  { id: 46, name: 'Taller de Prácticas Profesionales 2', Campo: 'Formación General / Práctica' },
+  { id: 47, name: 'Taller de Prácticas Profesionales 3', Campo: 'Formación General / Práctica' },
+  { id: 48, name: 'Taller de Prácticas Profesionales 4', Campo: 'Formación General / Práctica' },
+  { id: 49, name: 'Taller de Prácticas Profesionales 5', Campo: 'Formación General / Práctica' },
+  { id: 50, name: 'Taller de Prácticas Profesionales 6', Campo: 'Formación General / Práctica' },
+  { id: 51, name: 'Taller de Prácticas Profesionales 7', Campo: 'Formación General / Práctica' },
+  { id: 52, name: 'Taller de Prácticas Profesionales 8', Campo: 'Formación General / Práctica' },
+
+  // TFO
+  { id: 53, name: 'Trabajo Final Obligatorio (TFO) - DI', Campo: 'Modalidad DI' },
+
+  // Trabajos de campo
+  { id: 54, name: 'Trabajo de campo - Formación General (CFG)', Campo: 'Formación General' },
+  { id: 55, name: 'Trabajo de campo - Modalidad DI', Campo: 'Modalidad DI' }
+]
 export const users = [
   { id: 1, name: 'Érika', avatar: null, role: 'Estudiante', year: 3 },
   { id: 2, name: 'Camila', avatar: null, role: 'Estudiante', year: 2 },
