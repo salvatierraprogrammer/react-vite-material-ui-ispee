@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+﻿import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import {
   getMaterials as fetchMaterialsApi,
   createMaterial as createMaterialApi,
@@ -49,7 +49,7 @@ const materialsSlice = createSlice({
       .addCase(fetchMaterials.pending, (state) => { state.loading = true; state.error = null })
       .addCase(fetchMaterials.fulfilled, (state, action) => { state.loading = false; state.items = action.payload.map((m) => ({ ...m, id: m.id })) })
       .addCase(fetchMaterials.rejected, (state, action) => { state.loading = false; state.error = action.error.message })
-      .addCase(addMaterial.fulfilled, (state, action) => { state.items.unshift(action.payload) })
+      .addCase(addMaterial.fulfilled, (state, action) => { state.items = [action.payload, ...state.items] })
       .addCase(editMaterial.fulfilled, (state, action) => {
         const idx = state.items.findIndex((m) => m.id === action.payload.id)
         if (idx !== -1) state.items[idx] = action.payload

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Box, Typography, Paper, Chip, Button, Avatar, Rating, IconButton, Divider, TextField, Breadcrumbs, Link } from '@mui/material'
@@ -21,7 +21,7 @@ import GuestModal from '../components/auth/GuestModal'
 const typeIcons = { 'mapa-conceptual': MapOutlined, resumen: AutoStoriesOutlined, tp: AssignmentOutlined, 'apunte-teorico': SchoolOutlined, pdf: DescriptionOutlined, guia: DescriptionOutlined }
 
 function getFileIcon(m) {
-  const ext = m.fileName?.split('.').pop()?.toLowerCase()
+  const ext = m?.fileName?.split('.').pop()?.toLowerCase()
   if (ext === 'pdf') return PictureAsPdfOutlined
   return null
 }
@@ -45,7 +45,7 @@ export default function MaterialDetail() {
 
   useEffect(() => {
     if (materials.length === 0) {
-      dispatch(fetchMaterials()).then(() => setLoading(false))
+      dispatch(fetchMaterials()).finally(() => setLoading(false))
     } else {
       setLoading(false)
     }
@@ -55,7 +55,6 @@ export default function MaterialDetail() {
     if (!id) return
     const unsub = subscribeComments(id, (cmts) => {
       setComments(cmts)
-      const ratings = cmts.filter((c) => c.rating)
     })
     return unsub
   }, [id])
@@ -70,8 +69,8 @@ export default function MaterialDetail() {
   const material = materials.find((m) => m.id === id)
   const color = TYPE_COLORS[material?.type] || '#8B5CF6'
   const Icon = typeIcons[material?.type] || AutoStoriesOutlined
-  const FileIcon = getFileIcon(material)
-  const fColor = FILE_COLORS[material?.fileName?.split('.').pop()?.toLowerCase()]
+  const FileIcon = material ? getFileIcon(material) : null
+  const fColor = material?.fileName ? FILE_COLORS[material.fileName.split('.').pop()?.toLowerCase()] : undefined
 
   const handleFavorite = () => {
     if (!isAuthenticated) { setGuestAction('guardar en favoritos'); setGuestOpen(true); return }
@@ -85,6 +84,7 @@ export default function MaterialDetail() {
   }
 
   const handleView = () => {
+    if (!isAuthenticated) { setGuestAction('visualizar el archivo'); setGuestOpen(true); return }
     if (material?.fileUrl) window.open(material.fileUrl, '_blank')
   }
 
@@ -184,7 +184,7 @@ export default function MaterialDetail() {
 
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                <Avatar sx={{ width: 22, height: 22, bgcolor: color, fontSize: 10 }}>{material.author?.charAt(0)}</Avatar>
+                <Avatar src={material.userId === currentUser?.uid ? currentUser?.photoURL : (material.authorPhoto || '')} sx={{ width: 22, height: 22, bgcolor: color, fontSize: 10 }}>{material.author?.charAt(0)}</Avatar>
                 <Box><Typography sx={{ fontSize: 11, fontWeight: 600 }}>{material.author}</Typography><Typography sx={{ fontSize: 10, color: 'text.secondary' }}>Autor</Typography></Box>
               </Box>
               <Chip label={`${material.year}° Año`} size="small" sx={{ borderRadius: '6px', fontSize: 10.5, height: 22 }} />
@@ -253,7 +253,7 @@ export default function MaterialDetail() {
                 {comments.map((c) => (
                   <Paper key={c.id} variant="outlined" sx={{ p: 1.25, borderRadius: '10px', transition: 'all 0.15s', '&:hover': { borderColor: 'primary.light' } }}>
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Avatar src={c.authorPhoto} sx={{ width: 28, height: 28, bgcolor: '#8B5CF6', fontSize: 11 }}>{c.author?.charAt(0)}</Avatar>
+                      <Avatar src={c.userId === currentUser?.uid ? currentUser?.photoURL : c.authorPhoto} sx={{ width: 28, height: 28, bgcolor: '#8B5CF6', fontSize: 11 }}>{c.author?.charAt(0)}</Avatar>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.25 }}>
                           <Typography sx={{ fontSize: 12, fontWeight: 700 }}>{c.author}</Typography>

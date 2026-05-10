@@ -1,4 +1,4 @@
-import {
+﻿import {
   collection,
   doc,
   getDocs,
@@ -8,9 +8,7 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
   onSnapshot,
-  limit,
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
 
@@ -19,27 +17,30 @@ const COLLECTION = 'materialComments'
 export function subscribeComments(materialId, callback, commentLimit = 100) {
   const q = query(
     collection(db, COLLECTION),
-    where('materialId', '==', materialId),
-    orderBy('createdAt', 'desc'),
-    limit(commentLimit)
+    where('materialId', '==', materialId)
   )
-  return onSnapshot(q, (snap) => {
-    const comments = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    comments.reverse()
-    callback(comments)
-  })
+  return onSnapshot(q,
+    (snap) => {
+      let comments = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      comments.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+      if (comments.length > commentLimit) comments = comments.slice(0, commentLimit)
+      callback(comments)
+    },
+    (err) => {
+      console.error('Error subscribing to material comments:', err)
+      callback([])
+    }
+  )
 }
 
 export async function getComments(materialId) {
   const q = query(
     collection(db, COLLECTION),
-    where('materialId', '==', materialId),
-    orderBy('createdAt', 'desc'),
-    limit(100)
+    where('materialId', '==', materialId)
   )
   const snap = await getDocs(q)
-  const comments = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-  comments.reverse()
+  let comments = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+  comments.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
   return comments
 }
 

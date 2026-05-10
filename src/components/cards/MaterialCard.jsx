@@ -1,6 +1,6 @@
 import { useState, memo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Card, CardContent, Box, Typography, Chip, IconButton, Rating, Button } from '@mui/material'
+import { Card, CardContent, Box, Typography, Chip, IconButton, Rating, Button, Avatar } from '@mui/material'
 import { FavoriteBorder, Favorite, DownloadOutlined, VisibilityOutlined, AutoStoriesOutlined, DescriptionOutlined, MapOutlined, AssignmentOutlined, SchoolOutlined, PictureAsPdfOutlined } from '@mui/icons-material'
 import { toggleFavorite } from '../../redux/slices/materialsSlice'
 import { getTimeAgo, truncate, formatFileSize } from '../../utils/helpers'
@@ -24,7 +24,7 @@ function fileColor(material) {
 function MaterialCard({ material, actions }) {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { isAuthenticated } = useSelector((s) => s.auth)
+  const { isAuthenticated, currentUser } = useSelector((s) => s.auth)
   const [elevated, setElevated] = useState(false)
   const [guestOpen, setGuestOpen] = useState(false)
   const [guestAction, setGuestAction] = useState('')
@@ -72,7 +72,10 @@ function MaterialCard({ material, actions }) {
             {material.tags?.slice(0, 2).map((tag) => <Chip key={tag} label={tag} size="small" sx={{ fontSize: 8.5, height: 16, borderRadius: '3px', bgcolor: 'rgba(139,92,246,0.08)', color: '#8B5CF6', fontWeight: 500 }} />)}
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
-            <Typography sx={{ fontSize: 9.5, color: 'text.secondary' }}>{material.author} · {getTimeAgo(material.createdAt)}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Avatar src={material.userId === currentUser?.uid ? currentUser?.photoURL : (material.authorPhoto || '')} sx={{ width: 16, height: 16, fontSize: 8, bgcolor: color }}>{material.author?.charAt(0)}</Avatar>
+              <Typography sx={{ fontSize: 9.5, color: 'text.secondary' }}>{material.author} · {getTimeAgo(material.createdAt)}</Typography>
+            </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
                 <DownloadOutlined sx={{ fontSize: 11, color: 'text.secondary' }} />

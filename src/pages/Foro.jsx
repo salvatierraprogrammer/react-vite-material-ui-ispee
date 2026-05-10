@@ -133,7 +133,7 @@ export default function Foro() {
                     }}
                   >
                     <Box sx={{ display: 'flex', gap: 1.5 }} onClick={() => setExpandedPost(expandedPost?.id === post.id ? null : post)}>
-                      <Avatar src={post.authorPhoto} sx={{ width: 32, height: 32, bgcolor: '#8B5CF6', fontSize: 12, mt: 0.25 }}>
+                      <Avatar src={post.userId === currentUser?.uid ? currentUser?.photoURL : post.authorPhoto} sx={{ width: 32, height: 32, bgcolor: '#8B5CF6', fontSize: 12, mt: 0.25 }}>
                         {post.author?.charAt(0)}
                       </Avatar>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -201,7 +201,7 @@ export default function Foro() {
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                             {comments.map((c) => (
                               <Box key={c.id} sx={{ display: 'flex', gap: 1, py: 0.75 }}>
-                                <Avatar src={c.authorPhoto} sx={{ width: 24, height: 24, bgcolor: '#10B981', fontSize: 10 }}>{c.author?.charAt(0)}</Avatar>
+                                <Avatar src={c.userId === currentUser?.uid ? currentUser?.photoURL : c.authorPhoto} sx={{ width: 24, height: 24, bgcolor: '#10B981', fontSize: 10 }}>{c.author?.charAt(0)}</Avatar>
                                 <Box sx={{ flex: 1, minWidth: 0 }}>
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                                     <Typography sx={{ fontSize: 11.5, fontWeight: 600 }}>{c.author}</Typography>

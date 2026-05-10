@@ -34,6 +34,7 @@ export default function ModalCrearMaterial({ open, onClose }) {
         ...fileData,
         author: currentUser?.name || 'Anónimo',
         authorId: currentUser?.uid,
+        authorPhoto: currentUser?.photoURL || '',
         userId: currentUser?.uid,
       })).unwrap()
 

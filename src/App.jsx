@@ -12,6 +12,8 @@ import { subscribeNotifications } from './services/notificationService'
 import { getUserFavorites } from './services/usersService'
 import { db } from './firebase/config'
 
+import ErrorBoundary from './components/common/ErrorBoundary'
+
 export default function App() {
   const dispatch = useDispatch()
   const darkMode = useSelector((state) => state.ui.darkMode)
@@ -91,7 +93,9 @@ export default function App() {
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
       <CssBaseline />
-      <AppRouter />
+      <ErrorBoundary>
+        <AppRouter />
+      </ErrorBoundary>
     </ThemeProvider>
   )
 }

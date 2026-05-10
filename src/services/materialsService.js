@@ -39,6 +39,7 @@ export const createMaterial = async (material) => {
     tags: material.tags,
     author: material.author,
     authorId: material.authorId,
+    authorPhoto: material.authorPhoto || '',
     userId: material.userId,
     fileName: material.fileName || null,
     fileSize: material.fileSize || null,
