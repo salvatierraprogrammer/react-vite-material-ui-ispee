@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "animejs": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/animejs/SKILL.md",
+      "computedHash": "87b7202252c808da0e63a82c85c2d1933c7fd2c11877be4e7851cd5ee58589e3"
+    }
+  }
+}

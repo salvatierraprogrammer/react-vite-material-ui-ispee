@@ -24,6 +24,15 @@ export default function App() {
       if (user) {
         let photoURL = user.photoURL || ''
         let photoPath = ''
+        let role = 'estudiante'
+        let description = ''
+        let career = ''
+        let academicYear = null
+        let lastName = ''
+        let warnings = 0
+        let isBlocked = false
+        let suspended = false
+        let blockedForWarnings = false
 
         try {
           const snap = await getDoc(doc(db, 'users', user.uid))
@@ -31,6 +40,15 @@ export default function App() {
             const data = snap.data()
             if (data.photoURL) photoURL = data.photoURL
             if (data.photoPath) photoPath = data.photoPath
+            if (data.role) role = data.role
+            if (data.description) description = data.description
+            if (data.career) career = data.career
+            if (data.academicYear) academicYear = data.academicYear
+            if (data.lastName) lastName = data.lastName
+            if (typeof data.warnings === 'number') warnings = data.warnings
+            if (data.isBlocked) isBlocked = true
+            if (data.suspended) suspended = true
+            if (data.blockedForWarnings) blockedForWarnings = true
             dispatch(setFavoriteIds(data.favorites || []))
           }
         } catch {}
@@ -38,9 +56,18 @@ export default function App() {
         dispatch(setUser({
           uid: user.uid,
           name: user.displayName || 'Usuario',
+          lastName,
           email: user.email,
           photoURL,
           photoPath,
+          role,
+          description,
+          career,
+          academicYear,
+          warnings,
+          isBlocked,
+          suspended,
+          blockedForWarnings,
         }))
 
         updateDoc(doc(db, 'users', user.uid), {

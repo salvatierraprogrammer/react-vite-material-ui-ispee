@@ -7,6 +7,7 @@ const selectNotifState = (s) => s.notifications
 
 export const selectMaterials = (s) => s.materials.items
 export const selectMaterialsLoading = createSelector(selectMaterialsState, (ms) => ms.loading)
+export const selectMaterialsError = createSelector(selectMaterialsState, (ms) => ms.error)
 export const selectFavorites = createSelector(selectMaterialsState, (ms) => ms.items.filter((m) => m.isFavorite))
 export const selectMyMaterials = createSelector([selectMaterialsState, selectAuthState], (ms, as) => ms.items.filter((m) => m.userId === as.currentUser?.uid))
 export const selectCurrentUser = createSelector(selectAuthState, (as) => as.currentUser)

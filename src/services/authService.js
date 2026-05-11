@@ -11,9 +11,34 @@ import {
   verifyPasswordResetCode,
   confirmPasswordReset,
   applyActionCode,
+  deleteUser,
 } from 'firebase/auth'
-import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from '../firebase/config'
+
+export const ROLES = {
+  ADMIN: 'admin',
+  MODERADOR: 'moderador',
+  PROFESOR: 'profesor',
+  ESTUDIANTE: 'estudiante',
+}
+
+const DEFAULT_USER_DOC = {
+  role: ROLES.ESTUDIANTE,
+  isBlocked: false,
+  canUpload: true,
+  warnings: 0,
+  suspended: false,
+  suspensionReason: '',
+  suspensionDate: null,
+  online: false,
+  lastSeen: null,
+  favorites: [],
+  description: '',
+  career: '',
+  academicYear: null,
+  createdAt: null,
+}
 
 export function onAuthChange(callback) {
   return onAuthStateChanged(auth, callback)
@@ -30,11 +55,8 @@ export async function registerUser({ email, password, name, lastName }) {
     email,
     photoURL: '',
     photoPath: '',
-    role: 'Estudiante',
-    online: false,
-    lastSeen: null,
-    favorites: [],
-    createdAt: new Date().toISOString(),
+    ...DEFAULT_USER_DOC,
+    createdAt: serverTimestamp(),
   })
   return cred.user
 }
@@ -57,11 +79,8 @@ export async function loginWithGoogle() {
       email: cred.user.email,
       photoURL: cred.user.photoURL || '',
       photoPath: '',
-      role: 'Estudiante',
-      online: false,
-      lastSeen: null,
-      favorites: [],
-      createdAt: new Date().toISOString(),
+      ...DEFAULT_USER_DOC,
+      createdAt: serverTimestamp(),
     })
   }
   return cred.user

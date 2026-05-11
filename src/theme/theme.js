@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles'
+import { createTheme, alpha } from '@mui/material/styles'
 
 const shared = {
   typography: {
@@ -16,6 +16,9 @@ const shared = {
 }
 
 const componentOverrides = {
+  MuiUseMediaQuery: {
+    defaultProps: { noSsr: true },
+  },
   MuiButton: {
     styleOverrides: {
       root: {
@@ -44,12 +47,22 @@ const componentOverrides = {
     },
   },
   MuiPaper: {
-    styleOverrides: { root: { borderRadius: 12 } },
+    styleOverrides: {
+      root: {
+        borderRadius: 12,
+        transition: 'box-shadow 0.25s ease, border-color 0.25s ease',
+      },
+    },
   },
   MuiTextField: {
     styleOverrides: {
       root: {
-        '& .MuiOutlinedInput-root': { borderRadius: 10, transition: 'all 0.2s ease', '&:hover': { borderColor: '#8B5CF6' }, '&.Mui-focused': { borderColor: '#8B5CF6' } },
+        '& .MuiOutlinedInput-root': {
+          borderRadius: 10,
+          transition: 'all 0.2s ease',
+          '&:hover': { borderColor: '#8B5CF6' },
+          '&.Mui-focused': { borderColor: '#8B5CF6' },
+        },
       },
     },
   },
@@ -59,12 +72,18 @@ const componentOverrides = {
   MuiModal: {
     styleOverrides: {
       backdrop: {
-        backdropFilter: 'none',
+        backdropFilter: 'blur(4px)',
+        backgroundColor: alpha('#000', 0.4),
       },
     },
   },
   MuiDialog: {
-    styleOverrides: { paper: { borderRadius: 16 } },
+    styleOverrides: {
+      paper: {
+        borderRadius: 16,
+        boxShadow: '0 24px 48px rgba(0,0,0,0.15), 0 8px 16px rgba(0,0,0,0.08)',
+      },
+    },
   },
   MuiMenu: {
     styleOverrides: {
@@ -100,6 +119,56 @@ const componentOverrides = {
   },
   MuiListItemIcon: {
     styleOverrides: { root: { minWidth: 36 } },
+  },
+  MuiTooltip: {
+    styleOverrides: {
+      tooltip: {
+        borderRadius: 8,
+        fontSize: 11,
+        fontWeight: 500,
+        padding: '6px 10px',
+      },
+    },
+  },
+  MuiTableHead: {
+    styleOverrides: {
+      root: {
+        '& .MuiTableCell-head': {
+          fontSize: 10.5,
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.04em',
+        },
+      },
+    },
+  },
+  MuiTableRow: {
+    styleOverrides: {
+      root: {
+        transition: 'background-color 0.15s ease',
+        '&:hover': {
+          backgroundColor: alpha('#8B5CF6', 0.03),
+        },
+      },
+    },
+  },
+  MuiTableCell: {
+    styleOverrides: {
+      root: {
+        borderBottomColor: alpha('#ECECEC', 0.6),
+      },
+    },
+  },
+  MuiLinearProgress: {
+    styleOverrides: {
+      root: {
+        borderRadius: 4,
+        height: 8,
+      },
+      bar: {
+        borderRadius: 4,
+      },
+    },
   },
 }
 
@@ -137,6 +206,13 @@ export const darkTheme = createTheme({
           boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
           transition: 'all 0.25s ease',
           '&:hover': { boxShadow: '0 8px 20px rgba(139,92,246,0.2)', transform: 'translateY(-2px)' },
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderBottomColor: alpha('#2D1B69', 0.6),
         },
       },
     },

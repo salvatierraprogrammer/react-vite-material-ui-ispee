@@ -22,6 +22,11 @@ export default function ModalCrearMaterial({ open, onClose }) {
       onClose()
       return
     }
+    if (currentUser?.blockedForWarnings || currentUser?.suspended || currentUser?.isBlocked || (currentUser?.warnings || 0) >= 3) {
+      dispatch(showSnackbar({ message: 'No podés subir materiales porque tu cuenta está bloqueada. Contactate con soporte.', severity: 'error' }))
+      onClose()
+      return
+    }
     setUploading(true)
     setUploadProgress(0)
     try {
@@ -37,7 +42,7 @@ export default function ModalCrearMaterial({ open, onClose }) {
       }
       }
       setUploadProgress(95)
-      await dispatch(addMaterial({
+      const material = await dispatch(addMaterial({
         ...formData,
         ...fileData,
         author: currentUser?.name || 'Anónimo',
@@ -53,6 +58,7 @@ export default function ModalCrearMaterial({ open, onClose }) {
           userId: u.uid,
           text: `${currentUser?.name} subió un nuevo material: ${formData.title}`,
           type: 'material',
+          targetPath: `/material/${material.id}`,
         }).catch(() => {})
       })
 

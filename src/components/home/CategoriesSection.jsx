@@ -8,7 +8,12 @@ export default function CategoriesSection() {
     <Box sx={{ mb: 2.5 }}>
       <Typography sx={{ fontSize: 15, fontWeight: 500, mb: 1.25 }}>Explorar por categoría</Typography>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2,1fr)', sm: 'repeat(3,1fr)', md: 'repeat(6,1fr)' }, gap: 2 }}>
-        {categories.map((cat) => <CategoryCard key={cat.id} category={cat} onClick={() => navigate('/materias')} />)}
+        {categories.map((cat) => {
+          const isAll = cat.name === 'Todas'
+          const params = isAll ? {} : { year: cat.id }
+          const search = isAll ? '' : `?year=${cat.id}`
+          return <CategoryCard key={cat.id} category={cat} onClick={() => navigate(`/materias${search}`)} />
+        })}
       </Box>
     </Box>
   )

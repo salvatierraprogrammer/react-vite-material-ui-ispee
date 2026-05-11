@@ -1,13 +1,14 @@
 import { useState, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Box, Typography, Avatar, Badge, Paper, Chip, Stack, Card, Button, TextField, IconButton, CircularProgress } from '@mui/material'
-import { SchoolOutlined, AutoStoriesOutlined, FavoriteBorderOutlined, UploadFileOutlined, BadgeOutlined, EditOutlined, SaveOutlined, CloseOutlined, PhotoCamera } from '@mui/icons-material'
+import { Box, Typography, Avatar, Badge, Paper, Chip, Stack, Card, Button, TextField, IconButton, CircularProgress, MenuItem } from '@mui/material'
+import { SchoolOutlined, AutoStoriesOutlined, FavoriteBorderOutlined, UploadFileOutlined, BadgeOutlined, EditOutlined, SaveOutlined, CloseOutlined, PhotoCamera, DescriptionOutlined, WorkOutlineOutlined, CalendarTodayOutlined } from '@mui/icons-material'
 import { selectCurrentUser, selectMyMaterials, selectFavorites } from '../redux/selectors'
 import { updateUserProfile } from '../services/usersService'
 import { uploadProfilePhoto, deleteFile } from '../services/storageService'
 import { setUser } from '../redux/slices/authSlice'
 import { showSnackbar } from '../redux/slices/uiSlice'
 import CropModal from '../components/common/CropModal'
+import { years } from '../data/data'
 
 export default function Perfil() {
   const dispatch = useDispatch()
@@ -17,6 +18,9 @@ export default function Perfil() {
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState('')
   const [lastName, setLastName] = useState('')
+  const [description, setDescription] = useState('')
+  const [career, setCareer] = useState('')
+  const [academicYear, setAcademicYear] = useState('')
   const [saving, setSaving] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [cropOpen, setCropOpen] = useState(false)
@@ -33,6 +37,9 @@ export default function Perfil() {
   const startEdit = () => {
     setName(user?.name || '')
     setLastName(user?.lastName || '')
+    setDescription(user?.description || '')
+    setCareer(user?.career || '')
+    setAcademicYear(user?.academicYear ? String(user.academicYear) : '')
     setEditing(true)
   }
 
@@ -41,12 +48,16 @@ export default function Perfil() {
     setSaving(true)
     try {
       const displayName = `${name.trim()} ${lastName.trim()}`.trim()
-      await updateUserProfile(user.uid, {
+      const updates = {
         name: name.trim(),
         lastName: lastName.trim(),
         displayName,
-      })
-      dispatch(setUser({ ...user, name: displayName }))
+        description: description.trim(),
+        career: career.trim(),
+        academicYear: academicYear ? Number(academicYear) : null,
+      }
+      await updateUserProfile(user.uid, updates)
+      dispatch(setUser({ ...user, ...updates }))
       dispatch(showSnackbar({ message: 'Perfil actualizado', severity: 'success' }))
       setEditing(false)
     } catch {
@@ -123,7 +134,7 @@ export default function Perfil() {
                   <IconButton size="small" onClick={startEdit}><EditOutlined sx={{ fontSize: 14 }} /></IconButton>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 0.5, mt: 0.25, flexWrap: 'wrap' }}>
-                  <Chip icon={<BadgeOutlined sx={{ fontSize: 11 }} />} label={user?.role || 'Estudiante'} size="small" sx={{ borderRadius: '5px', fontSize: 10, height: 22 }} />
+                  <Chip icon={<BadgeOutlined sx={{ fontSize: 11 }} />} label="Estudiante" size="small" sx={{ borderRadius: '5px', fontSize: 10, height: 22 }} />
                   <Chip label="ISPEE" size="small" sx={{ borderRadius: '5px', fontSize: 10, height: 22 }} />
                 </Box>
               </>
@@ -131,6 +142,60 @@ export default function Perfil() {
           </Box>
         </Box>
       </Card>
+
+      {(editing || user?.description || user?.career || user?.academicYear) && (
+        <Card sx={{ p: 2, mb: 1.5, borderRadius: '14px' }}>
+          <Typography sx={{ fontWeight: 700, fontSize: 14, mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            <WorkOutlineOutlined sx={{ fontSize: 16, color: 'primary.main' }} /> Información académica
+          </Typography>
+          {editing ? (
+            <Stack spacing={1.5}>
+              <TextField size="small" label="Carrera" value={career} onChange={(e) => setCareer(e.target.value)} fullWidth placeholder="Ej: Profesorado de Educación Primaria"
+                slotProps={{ inputLabel: { shrink: true } }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: 12 } }} />
+              <Box sx={{ display: 'flex', gap: 1.5 }}>
+                <TextField size="small" label="Descripción" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline rows={3} placeholder="Contá un poco sobre vos..."
+                  slotProps={{ inputLabel: { shrink: true } }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: 12 } }} />
+              </Box>
+              <TextField select label="Año que cursás" value={academicYear} onChange={(e) => setAcademicYear(e.target.value)} size="small" sx={{ minWidth: 160, '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: 12 } }}
+                slotProps={{ inputLabel: { shrink: true } }}>
+                <MenuItem value="">Sin especificar</MenuItem>
+                {years.map((y) => <MenuItem key={y.id} value={String(y.id)}>{y.name}</MenuItem>)}
+              </TextField>
+            </Stack>
+          ) : (
+            <Stack spacing={0.75}>
+              {user?.career && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <WorkOutlineOutlined sx={{ fontSize: 14, color: 'text.secondary' }} />
+                  <Typography sx={{ fontSize: 12.5 }}>{user.career}</Typography>
+                </Box>
+              )}
+              {user?.description && (
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                  <DescriptionOutlined sx={{ fontSize: 14, color: 'text.secondary', mt: 0.25 }} />
+                  <Typography sx={{ fontSize: 12.5, color: 'text.secondary', lineHeight: 1.5 }}>{user.description}</Typography>
+                </Box>
+              )}
+              {user?.academicYear && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CalendarTodayOutlined sx={{ fontSize: 14, color: 'text.secondary' }} />
+                  <Typography sx={{ fontSize: 12.5 }}>{years.find((y) => y.id === user.academicYear)?.name || `${user.academicYear}° año`}</Typography>
+                </Box>
+              )}
+            </Stack>
+          )}
+        </Card>
+      )}
+      {!editing && !user?.description && !user?.career && !user?.academicYear && (
+        <Card sx={{ p: 2, mb: 1.5, borderRadius: '14px' }}>
+          <Box sx={{ textAlign: 'center', py: 1 }}>
+            <Typography sx={{ fontSize: 13, color: 'text.secondary', mb: 1 }}>Completá tu información académica</Typography>
+            <Button size="small" variant="outlined" onClick={startEdit} sx={{ borderRadius: '8px', fontSize: 12 }}>
+              Agregar datos
+            </Button>
+          </Box>
+        </Card>
+      )}
 
       <Stack direction="row" spacing={1} sx={{ mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
         {stats.map((stat) => {
@@ -150,7 +215,7 @@ export default function Perfil() {
       <Card sx={{ p: 1.5, borderRadius: '14px' }}>
         <Typography sx={{ fontWeight: 700, fontSize: 14, mb: 1 }}>Actividad reciente</Typography>
         {myMaterials.length === 0 ? (
-          <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>Todavía no hay actividad. ¡Subí tu primer material!</Typography>
+          <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>Todavía no hay actividad. Subí tu primer material!</Typography>
         ) : (
           myMaterials.slice(0, 5).map((m) => (
             <Box key={m.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.75, '&:not(:last-child)': { borderBottom: 1, borderColor: 'divider' } }}>

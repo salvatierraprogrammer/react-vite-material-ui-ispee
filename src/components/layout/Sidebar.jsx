@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Typography, Button, Divider, useMediaQuery, useTheme } from '@mui/material'
-import { HomeOutlined, SchoolOutlined, FavoriteBorderOutlined, UploadFileOutlined, ChatOutlined, ForumOutlined, AutoStoriesOutlined } from '@mui/icons-material'
+import { HomeOutlined, SchoolOutlined, FavoriteBorderOutlined, UploadFileOutlined, ChatOutlined, ForumOutlined, AutoStoriesOutlined, AdminPanelSettingsOutlined, DashboardOutlined } from '@mui/icons-material'
 import { setSidebarOpen } from '../../redux/slices/uiSlice'
 import { DRAWER_WIDTH } from '../../constants'
+import { ROLES } from '../../services/authService'
 import GuestModal from '../auth/GuestModal'
 
 const nav = [
@@ -19,7 +20,7 @@ const nav = [
 function SidebarContent({ onNavigate }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated } = useSelector((s) => s.auth)
+  const { isAuthenticated, currentUser } = useSelector((s) => s.auth)
   const [guestOpen, setGuestOpen] = useState(false)
   const go = (path) => { navigate(path); onNavigate?.() }
 
@@ -46,6 +47,19 @@ function SidebarContent({ onNavigate }) {
           )
         })}
       </List>
+
+      {currentUser?.role === ROLES.ADMIN && (
+        <>
+          <Divider sx={{ mx: 1.5, my: 0.5 }} />
+          <Typography sx={{ px: 2, py: 0.5, fontSize: 9, fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.08 }}>Admin</Typography>
+          <List dense disablePadding sx={{ px: 1 }}>
+            <ListItemButton onClick={() => go('/admin')} sx={{ borderRadius: '8px', mb: 0.25, bgcolor: location.pathname.startsWith('/admin') ? 'rgba(139,92,246,0.1)' : 'transparent', color: location.pathname.startsWith('/admin') ? 'primary.main' : 'text.secondary', '&:hover': { bgcolor: 'rgba(139,92,246,0.08)', color: 'primary.main' }, py: 0.5, px: 1 }}>
+              <ListItemIcon sx={{ minWidth: 30, color: 'inherit' }}><DashboardOutlined sx={{ fontSize: 17 }} /></ListItemIcon>
+              <ListItemText primary="Panel admin" slotProps={{ primary: { fontSize: 12.5, fontWeight: location.pathname.startsWith('/admin') ? 600 : 500 } }} />
+            </ListItemButton>
+          </List>
+        </>
+      )}
 
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ mx: 1.5, mb: 1.5, p: 1.25, borderRadius: '12px', background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)', textAlign: 'center' }}>

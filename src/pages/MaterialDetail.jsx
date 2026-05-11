@@ -5,7 +5,8 @@ import { Box, Typography, Paper, Chip, Button, Avatar, Rating, IconButton, Divid
 import {
   DownloadOutlined, VisibilityOutlined, ArrowBack, FavoriteBorder, Favorite,
   PictureAsPdfOutlined, DescriptionOutlined, AutoStoriesOutlined, MapOutlined,
-  AssignmentOutlined, SchoolOutlined, ChatBubbleOutlined, SendOutlined, DeleteOutlined, EditOutlined
+  AssignmentOutlined, SchoolOutlined, ChatBubbleOutlined, SendOutlined, DeleteOutlined, EditOutlined,
+  FlagOutlined
 } from '@mui/icons-material'
 import { fetchMaterials } from '../redux/slices/materialsSlice'
 import { selectMaterials } from '../redux/selectors'
@@ -17,6 +18,8 @@ import { rateMaterial, getUserRating } from '../services/ratingService'
 import { incrementDownload } from '../services/materialsService'
 import Loading from '../components/common/Loading'
 import GuestModal from '../components/auth/GuestModal'
+import FileViewerModal from '../components/modals/FileViewerModal'
+import ReportModal from '../components/modals/ReportModal'
 
 const typeIcons = { 'mapa-conceptual': MapOutlined, resumen: AutoStoriesOutlined, tp: AssignmentOutlined, 'apunte-teorico': SchoolOutlined, pdf: DescriptionOutlined, guia: DescriptionOutlined }
 
@@ -42,6 +45,8 @@ export default function MaterialDetail() {
   const [ratingsCount, setRatingsCount] = useState(0)
   const [editingComment, setEditingComment] = useState(null)
   const [editCommentText, setEditCommentText] = useState('')
+  const [viewerOpen, setViewerOpen] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
 
   useEffect(() => {
     if (materials.length === 0) {
@@ -77,15 +82,19 @@ export default function MaterialDetail() {
     dispatch(toggleFavorite(material.id))
   }
 
+  const isRestricted = currentUser?.blockedForWarnings || currentUser?.suspended || currentUser?.isBlocked || (currentUser?.warnings || 0) >= 3
+
   const handleDownload = async () => {
     if (!isAuthenticated) { setGuestAction('descargar archivos'); setGuestOpen(true); return }
+    if (isRestricted) { alert('Contactate con soporte para quitar el bloqueo ya que no cumpliste con tu conducta.'); return }
     if (material?.fileUrl) window.open(material.fileUrl, '_blank')
     await incrementDownload(id).catch(() => {})
   }
 
   const handleView = () => {
     if (!isAuthenticated) { setGuestAction('visualizar el archivo'); setGuestOpen(true); return }
-    if (material?.fileUrl) window.open(material.fileUrl, '_blank')
+    if (isRestricted) { alert('Contactate con soporte para quitar el bloqueo ya que no cumpliste con tu conducta.'); return }
+    setViewerOpen(true)
   }
 
   const handleAddComment = async () => {
@@ -154,14 +163,25 @@ export default function MaterialDetail() {
                 </Box>
               </Box>
             )}
-            <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
-              <Button variant="contained" fullWidth startIcon={<DownloadOutlined sx={{ fontSize: 16 }} />} onClick={handleDownload} sx={{ fontSize: 12.5, py: 0.75, borderRadius: '8px' }}>Descargar</Button>
-              <Button variant="outlined" fullWidth startIcon={<VisibilityOutlined sx={{ fontSize: 16 }} />} onClick={handleView} sx={{ fontSize: 12.5, py: 0.75, borderRadius: '8px' }}>Visualizar</Button>
-            </Box>
+            {isRestricted ? (
+              <Box sx={{ mt: 1.5, p: 1.25, borderRadius: '10px', bgcolor: '#FEE2E2', border: '1px solid #FCA5A5' }}>
+                <Typography sx={{ fontSize: 12, color: '#991B1B', fontWeight: 600, textAlign: 'center' }}>
+                  Contactate con soporte para quitar el bloqueo ya que no cumpliste con tu conducta.
+                </Typography>
+              </Box>
+            ) : (
+              <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
+                <Button variant="contained" fullWidth startIcon={<DownloadOutlined sx={{ fontSize: 16 }} />} onClick={handleDownload} sx={{ fontSize: 12.5, py: 0.75, borderRadius: '8px' }}>Descargar</Button>
+                <Button variant="outlined" fullWidth startIcon={<VisibilityOutlined sx={{ fontSize: 16 }} />} onClick={handleView} sx={{ fontSize: 12.5, py: 0.75, borderRadius: '8px' }}>Visualizar</Button>
+              </Box>
+            )}
             <IconButton onClick={handleFavorite} sx={{ mt: 1.5, width: '100%', borderRadius: '8px', border: 1, borderColor: 'divider', gap: 0.5, color: material.isFavorite ? '#EF4444' : 'text.secondary', fontSize: 12 }}>
               {material.isFavorite ? <Favorite sx={{ fontSize: 16 }} /> : <FavoriteBorder sx={{ fontSize: 16 }} />}
               {material.isFavorite ? 'Guardado en favoritos' : 'Agregar a favoritos'}
             </IconButton>
+            <Button onClick={() => setReportOpen(true)} fullWidth startIcon={<FlagOutlined sx={{ fontSize: 14 }} />} size="small" sx={{ mt: 1, borderRadius: '8px', fontSize: 11.5, color: 'text.secondary', border: 1, borderColor: 'divider', '&:hover': { borderColor: '#EF4444', color: '#EF4444', bgcolor: 'rgba(239,68,68,0.04)' } }}>
+              Reportar
+            </Button>
 
             <Box sx={{ mt: 2, p: 1.5, borderRadius: '10px', bgcolor: 'action.hover', textAlign: 'center' }}>
               <Typography sx={{ fontSize: 11, fontWeight: 600, color: 'text.secondary', mb: 0.5 }}>Calificación</Typography>
@@ -282,7 +302,22 @@ export default function MaterialDetail() {
           </Box>
         </Box>
       </Paper>
+      <FileViewerModal
+        open={viewerOpen}
+        onClose={() => setViewerOpen(false)}
+        fileUrl={material?.fileUrl}
+        fileName={material?.fileName}
+        fileSize={material?.fileSize}
+        materialTitle={material?.title}
+      />
       <GuestModal open={guestOpen} onClose={() => setGuestOpen(false)} action={guestAction} />
+      <ReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetId={material.id}
+        targetUserId={material.userId}
+        type="material"
+      />
     </Box>
   )
 }

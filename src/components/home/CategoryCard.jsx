@@ -1,7 +1,7 @@
 import { Card, CardContent, Typography, Box } from '@mui/material'
-import { School, Filter1, Filter2, Filter3, Filter4 } from '@mui/icons-material'
+import { School, Filter1, Filter2, Filter3, Filter4, Looks5Outlined } from '@mui/icons-material'
 
-const iconMap = { 'numeric-1-box': Filter1, 'numeric-2-box': Filter2, 'numeric-3-box': Filter3, 'numeric-4-box': Filter4, school: School }
+const iconMap = { 'numeric-1-box': Filter1, 'numeric-2-box': Filter2, 'numeric-3-box': Filter3, 'numeric-4-box': Filter4, 'numeric-5-box': Looks5Outlined, school: School }
 
 export default function CategoryCard({ category, onClick }) {
   const Icon = iconMap[category.icon] || School

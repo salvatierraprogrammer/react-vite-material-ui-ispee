@@ -2,14 +2,19 @@ import { useState, useEffect, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import { Box, Typography, Paper, Button, Avatar, IconButton, TextField, Dialog, DialogTitle, DialogContent, Chip, Divider, Tooltip } from '@mui/material'
 import {
-  Add, Close, ThumbUpOutlined, ThumbUp, ChatBubbleOutlined, DeleteOutlined, EditOutlined, Send, MoreHoriz, FavoriteBorder
+  Add, Close, ThumbUpOutlined, ThumbUp, ChatBubbleOutlined, DeleteOutlined, EditOutlined, Send, MoreHoriz, FavoriteBorder,
+  FlagOutlined
 } from '@mui/icons-material'
 import { subscribePosts, createPost, likePost, addComment, subscribeComments, updatePost, deletePost, deleteComment } from '../services/forumService'
 import { getTimeAgo } from '../utils/helpers'
 import GuestModal from '../components/auth/GuestModal'
+import ReportModal from '../components/modals/ReportModal'
+
+const BLOCKED_MSG = 'Contactate con soporte para quitar el bloqueo ya que no cumpliste con tu conducta.'
 
 export default function Foro() {
   const { isAuthenticated, currentUser } = useSelector((s) => s.auth)
+  const isRestricted = currentUser?.blockedForWarnings || currentUser?.suspended || currentUser?.isBlocked || (currentUser?.warnings || 0) >= 3
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [expandedPost, setExpandedPost] = useState(null)
@@ -23,6 +28,7 @@ export default function Foro() {
   const [editContent, setEditContent] = useState('')
   const [guestOpen, setGuestOpen] = useState(false)
   const [guestAction, setGuestAction] = useState('')
+  const [reportTarget, setReportTarget] = useState(null)
 
   useEffect(() => {
     const unsub = subscribePosts(setPosts)
@@ -38,6 +44,7 @@ export default function Foro() {
 
   const handleCreatePost = async () => {
     if (!newContent.trim()) return
+    if (isRestricted) { alert(BLOCKED_MSG); return }
     const title = newTitle.trim() || 'Sin título'
     await createPost({
       userId: currentUser.uid,
@@ -51,12 +58,14 @@ export default function Foro() {
 
   const handleLike = async (postId) => {
     if (!isAuthenticated) { setGuestAction('dar like'); setGuestOpen(true); return }
+    if (isRestricted) { alert(BLOCKED_MSG); return }
     await likePost(postId, currentUser.uid).catch(() => {})
   }
 
   const handleAddComment = async () => {
     if (!commentInput.trim()) return
     if (!isAuthenticated) { setGuestAction('comentar'); setGuestOpen(true); return }
+    if (isRestricted) { alert(BLOCKED_MSG); return }
     await addComment(expandedPost.id, {
       userId: currentUser.uid,
       author: currentUser.name,
@@ -87,6 +96,7 @@ export default function Foro() {
 
   const openNewPost = () => {
     if (!isAuthenticated) { setGuestAction('publicar en el foro'); setGuestOpen(true); return }
+    if (isRestricted) { alert(BLOCKED_MSG); return }
     setNewPostOpen(true)
   }
 
@@ -105,6 +115,11 @@ export default function Foro() {
         </Box>
         <Button variant="contained" size="small" startIcon={<Add sx={{ fontSize: 14 }} />} onClick={openNewPost} sx={{ fontSize: 12 }}>Nuevo tema</Button>
       </Box>
+      {isRestricted && (
+        <Paper sx={{ p: 2, mb: 2, borderRadius: '12px', bgcolor: '#FEE2E2', border: '1px solid #FCA5A5' }}>
+          <Typography sx={{ fontSize: 13, color: '#991B1B', fontWeight: 600 }}>{BLOCKED_MSG}</Typography>
+        </Paper>
+      )}
 
       <Box sx={{ display: 'flex', gap: 1.5 }}>
         <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -175,6 +190,9 @@ export default function Foro() {
                                 sx={{ fontSize: 11, color: 'error.main', minWidth: 0, borderRadius: '6px' }}>Eliminar</Button>
                             </>
                           )}
+                          <Button size="small" startIcon={<FlagOutlined sx={{ fontSize: 14 }} />}
+                            onClick={(e) => { e.stopPropagation(); setReportTarget({ id: post.id, userId: post.userId, type: 'post' }) }}
+                            sx={{ fontSize: 11, color: 'text.secondary', minWidth: 0, borderRadius: '6px', ml: 'auto', '&:hover': { color: '#EF4444' } }}>Reportar</Button>
                         </Box>
 
                         <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'text.secondary', mb: 1 }}>Comentarios ({comments.length})</Typography>
@@ -211,6 +229,10 @@ export default function Foro() {
                                         <Close sx={{ fontSize: 10 }} />
                                       </IconButton>
                                     )}
+                                    <IconButton size="small" onClick={() => setReportTarget({ id: c.id, userId: c.userId, type: 'comment' })}
+                                      sx={{ color: 'text.disabled', '&:hover': { color: '#EF4444' } }}>
+                                      <FlagOutlined sx={{ fontSize: 12 }} />
+                                    </IconButton>
                                   </Box>
                                   <Typography sx={{ fontSize: 12, mt: 0.25 }}>{c.content}</Typography>
                                 </Box>
@@ -257,6 +279,13 @@ export default function Foro() {
       </Dialog>
 
       <GuestModal open={guestOpen} onClose={() => setGuestOpen(false)} action={guestAction} />
+      <ReportModal
+        open={Boolean(reportTarget)}
+        onClose={() => setReportTarget(null)}
+        targetId={reportTarget?.id}
+        targetUserId={reportTarget?.userId}
+        type={reportTarget?.type || 'post'}
+      />
     </Box>
   )
 }

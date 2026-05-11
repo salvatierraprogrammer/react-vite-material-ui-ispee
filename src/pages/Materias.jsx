@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useSearchParams } from 'react-router-dom'
 import { Box, Typography, TextField, MenuItem, IconButton, Tooltip } from '@mui/material'
 import { Add } from '@mui/icons-material'
 import { fetchMaterials } from '../redux/slices/materialsSlice'
@@ -17,9 +18,10 @@ export default function Materias() {
   const materials = useSelector(selectMaterials)
   const loading = useSelector(selectMaterialsLoading)
   const { isAuthenticated } = useSelector((s) => s.auth)
+  const [searchParams] = useSearchParams()
   const [createOpen, setCreateOpen] = useState(false)
   const [guestOpen, setGuestOpen] = useState(false)
-  const [filters, setFilters] = useState({ year: '', subject: '', type: '', sort: 'recientes' })
+  const [filters, setFilters] = useState({ year: searchParams.get('year') || '', subject: '', type: '', sort: 'recientes' })
 
   useEffect(() => { dispatch(fetchMaterials()) }, [dispatch])
 

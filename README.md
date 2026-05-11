@@ -1,6 +1,6 @@
 # Apuntes ISPEE
 
-Plataforma colaborativa de apuntes académicos para el Instituto Superior Politécnico de Educación Empresarial (ISPEE). Los estudiantes pueden compartir, descargar, valorar y comentar materiales de estudio, participar en un foro, chatear en tiempo real y gestionar su perfil.
+Plataforma colaborativa de apuntes académicos para el Instituto Superior Politécnico de Educación Empresarial (ISPEE). Los estudiantes pueden compartir, descargar, valorar y comentar materiales de estudio, participar en un foro, chatear en tiempo real, reportar contenido inapropiado y gestionar su perfil.
 
 ## Stack
 
@@ -15,14 +15,18 @@ Plataforma colaborativa de apuntes académicos para el Instituto Superior Polit�
 ## Funcionalidades
 
 - **Autenticación** — Email/contraseña y Google Sign-In. Registro con nombre + apellido. Verificación de email y recuperación de contraseña.
-- **Materiales** — Subida de PDF/DOCX/PPTX (max 20 MB), vista previa, descarga con contador, valoración (estrellas con promedio), comentarios en cada material.
+- **Materiales** — Subida de PDF/DOCX/PPTX (max 20 MB), vista previa, descarga con contador, valoración (estrellas con promedio), comentarios en cada material. Filtros por año, materia, tipo y orden.
 - **Favoritos** — Marcado de materiales como favoritos, persistido en Firestore (array en el documento del usuario).
 - **Foro** — Posts con like/unlike, comentarios en cada post, edición y borrado propio.
 - **Chat** — Mensajería en tiempo real texto-solo. Búsqueda de usuarios, indicador de online, conversaciones ordenadas por última actividad.
-- **Notificaciones** — Notificaciones push-style para nuevos mensajes y nuevos materiales. Marcado individual/masivo como leído, borrado.
-- **Perfil** — Edición de nombre y apellido, foto de perfil con recorte circular y carga a Storage, persistencia cross-session.
+- **Notificaciones** — Notificaciones push-style para nuevos mensajes, nuevos materiales y sanciones del admin (advertencias, suspensiones, bloqueos). Marcado individual/masivo como leído, borrado.
+- **Reportes** — Botón "Reportar" en materiales, posts del foro, comentarios y mensajes del chat. Modal con selección de motivo (inapropiado, spam, ofensivo, plagio, duplicado, otro). Los reportes se almacenan en Firestore y son gestionables por administradores.
+- **Perfil** — Edición de nombre, apellido, descripción, carrera y año cursante. Foto de perfil con recorte circular. El rol público siempre muestra "Estudiante" independientemente del rol real.
+- **Centro de Ayuda** — Página `/ayuda` con preguntas frecuentes en formato accordion.
 - **Modo invitado** — Navegación sin autenticación. Las acciones protegidas (subir, comentar, valorar, chatear, etc.) muestran un modal elegante invitando a login/register.
-- **Seguridad** — Reglas de Firestore y Storage con principio de mínimo privilegio: solo el owner puede editar/borrar, lecturas públicas en colecciones de contenido, contadores modificables por cualquier usuario autenticado.
+- **Seguridad** — Reglas de Firestore y Storage con principio de mínimo privilegio: solo el owner puede editar/borrar, lecturas públicas en colecciones de contenido, contadores modificables por cualquier usuario autenticado. Roles: admin, moderador, profesor, estudiante.
+- **Responsive** — Diseño adaptable a móviles, tablets y desktop con grid dinámico.
+- **Dark Mode** — Toggle claro/oscuro persistido en el estado global.
 
 ## Rutas
 
@@ -32,12 +36,17 @@ Plataforma colaborativa de apuntes académicos para el Instituto Superior Polit�
 | `/materias`       | Materias          | No        |
 | `/material/:id`   | Detalle material  | No        |
 | `/foro`           | Foro              | No        |
+| `/ayuda`          | Centro de Ayuda   | No        |
 | `/login`          | Login             | No        |
 | `/register`       | Registro          | No        |
+| `/reset-password` | Reset password    | No        |
+| `/intro`          | Intro animado     | No        |
 | `/favoritos`      | Favoritos         | Sí        |
 | `/mis-aportes`    | Mis Aportes       | Sí        |
 | `/mensajes`       | Mensajes (chat)   | Sí        |
 | `/perfil`         | Perfil            | Sí        |
+| `/configuracion`  | Configuración     | Sí        |
+| `/admin/*`        | Panel admin       | Admin     |
 
 ## Variables de entorno
 

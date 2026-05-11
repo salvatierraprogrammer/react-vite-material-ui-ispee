@@ -19,11 +19,15 @@
     "@mui/styled-engine-sc": "^9.0.1",
     "@reduxjs/toolkit": "^2.11.2",
     "firebase": "^12.13.0",
+    "framer-motion": "^12.38.0",
+    "gsap": "^3.15.0",
+    "hyperframes": "^0.5.7",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-easy-crop": "^5.5.7",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.15.0",
+    "recharts": "^3.8.1",
     "styled-components": "^6.4.1"
   },
   "devDependencies": {

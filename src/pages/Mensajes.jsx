@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSelector } from 'react-redux'
-import { Box, Typography, Paper, List, ListItemButton, ListItemAvatar, Avatar, ListItemText, Badge, TextField, IconButton, InputAdornment, ClickAwayListener, Divider, CircularProgress } from '@mui/material'
-import { Send, Search, Close, ChatOutlined, ArrowBack } from '@mui/icons-material'
+import { Box, Typography, Paper, List, ListItemButton, ListItemAvatar, Avatar, ListItemText, Badge, TextField, IconButton, InputAdornment, ClickAwayListener, Divider, CircularProgress, Tooltip } from '@mui/material'
+import { Send, Search, Close, ChatOutlined, ArrowBack, FlagOutlined } from '@mui/icons-material'
 import { useResponsive } from '../hooks/useResponsive'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase/config'
@@ -9,9 +9,11 @@ import { subscribeConversations, subscribeMessages, getOrCreateConversation, sen
 import { searchUsers } from '../services/usersService'
 import { createNotification } from '../services/notificationService'
 import { getTimeAgo, debounce } from '../utils/helpers'
+import ReportModal from '../components/modals/ReportModal'
 
 export default function Mensajes() {
   const { currentUser } = useSelector((s) => s.auth)
+  const isRestricted = currentUser?.blockedForWarnings || currentUser?.suspended || currentUser?.isBlocked || (currentUser?.warnings || 0) >= 3
   const { isSmall } = useResponsive()
   const [mobileView, setMobileView] = useState('list')
   const [conversations, setConversations] = useState([])
@@ -25,6 +27,7 @@ export default function Mensajes() {
   const bottomRef = useRef(null)
   const [initialLoading, setInitialLoading] = useState(true)
   const [otherStatus, setOtherStatus] = useState({ online: false })
+  const [reportTarget, setReportTarget] = useState(null)
 
   useEffect(() => {
     if (!selectedConv || !currentUser) { setOtherStatus({ online: false }); return }
@@ -100,14 +103,16 @@ export default function Mensajes() {
 
   const handleSend = async () => {
     if (!input.trim() || !selectedConv?.id || !currentUser?.uid) return
+    if (isRestricted) { alert('Contactate con soporte para quitar el bloqueo ya que no cumpliste con tu conducta.'); return }
     await sendMessage(selectedConv.id, currentUser.uid, input.trim())
     const other = getOtherParticipant(selectedConv)
     if (other?.uid) {
       createNotification({
-        userId: other.uid,
-        text: `${currentUser.name} te envió un mensaje`,
-        type: 'message',
-      }).catch(() => {})
+          userId: other.uid,
+          text: `${currentUser.name} te envió un mensaje`,
+          type: 'message',
+          targetPath: '/mensajes',
+        }).catch(() => {})
     }
     setInput('')
   }
@@ -249,7 +254,7 @@ export default function Mensajes() {
                     </Typography>
                   </Box>
                 ) : (
-                  messages.map((msg, i) => {
+                    messages.map((msg, i) => {
                     const isMine = msg.senderId === currentUser?.uid
                     const showAvatar = i === 0 || messages[i - 1]?.senderId !== msg.senderId
                     return (
@@ -270,9 +275,19 @@ export default function Mensajes() {
                           }}>
                             <Typography sx={{ fontSize: 12.5, wordBreak: 'break-word' }}>{msg.text}</Typography>
                           </Box>
-                          <Typography sx={{ fontSize: 9, color: 'text.secondary', mt: 0.25, px: 0.5 }}>
-                            {msg.createdAt ? getTimeAgo(msg.createdAt) : ''}
-                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 0.5 }}>
+                            <Typography sx={{ fontSize: 9, color: 'text.secondary', mt: 0.25 }}>
+                              {msg.createdAt ? getTimeAgo(msg.createdAt) : ''}
+                            </Typography>
+                            {!isMine && (
+                              <Tooltip title="Reportar mensaje">
+                                <IconButton size="small" onClick={() => setReportTarget({ id: msg.id, conversationId: selectedConv?.id, senderId: msg.senderId })}
+                                  sx={{ color: 'text.disabled', '&:hover': { color: '#EF4444' }, width: 16, height: 16, mt: 0.25 }}>
+                                  <FlagOutlined sx={{ fontSize: 10 }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                          </Box>
                         </Box>
                       </Box>
                     )
@@ -281,16 +296,24 @@ export default function Mensajes() {
                 <div ref={bottomRef} />
               </Box>
 
-              <Box sx={{ p: 1.5, borderTop: 1, borderColor: 'divider', display: 'flex', gap: 1, alignItems: 'center' }}>
-                <TextField fullWidth size="small" placeholder="Escribí un mensaje…" value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: 12.5 } }} />
-                <IconButton onClick={handleSend} size="small"
-                  sx={{ bgcolor: 'primary.main', color: '#fff', '&:hover': { bgcolor: 'primary.dark' }, width: 32, height: 32 }}>
-                  <Send sx={{ fontSize: 15 }} />
-                </IconButton>
-              </Box>
+              {isRestricted ? (
+                <Box sx={{ p: 1.5, borderTop: 1, borderColor: 'divider', bgcolor: '#FEE2E2' }}>
+                  <Typography sx={{ fontSize: 12, color: '#991B1B', fontWeight: 600, textAlign: 'center' }}>
+                    Contactate con soporte para quitar el bloqueo ya que no cumpliste con tu conducta.
+                  </Typography>
+                </Box>
+              ) : (
+                <Box sx={{ p: 1.5, borderTop: 1, borderColor: 'divider', display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <TextField fullWidth size="small" placeholder="Escribí un mensaje…" value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: 12.5 } }} />
+                  <IconButton onClick={handleSend} size="small"
+                    sx={{ bgcolor: 'primary.main', color: '#fff', '&:hover': { bgcolor: 'primary.dark' }, width: 32, height: 32 }}>
+                    <Send sx={{ fontSize: 15 }} />
+                  </IconButton>
+                </Box>
+              )}
             </>
           ) : (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, flexDirection: 'column', gap: 1 }}>
@@ -301,6 +324,13 @@ export default function Mensajes() {
           )}
         </Paper>
       )}
+      <ReportModal
+        open={Boolean(reportTarget)}
+        onClose={() => setReportTarget(null)}
+        targetId={reportTarget?.conversationId || reportTarget?.id}
+        targetUserId={reportTarget?.senderId}
+        type="message"
+      />
     </Box>
   )
 }
