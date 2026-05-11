@@ -53,15 +53,23 @@ export default function Materias() {
       {loading ? (
         <Box>
           <Typography sx={{ fontSize: 13, color: 'text.secondary', mb: 1 }}>Cargando materiales...</Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2 }}>
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => <SkeletonCard key={i} />)}
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2, alignItems: 'stretch' }}>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <Box key={i} sx={{ height: '100%', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                <SkeletonCard />
+              </Box>
+            ))}
           </Box>
         </Box>
       ) : filtered.length === 0 ? (
         <EmptyState title="Sin resultados" description="No hay materiales con esos filtros." />
       ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2 }}>
-          {filtered.map((m) => <MaterialCard key={m.id} material={m} />)}
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2, alignItems: 'stretch' }}>
+          {filtered.map((m) => (
+            <Box key={m.id} sx={{ height: '100%', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+              <MaterialCard material={m} />
+            </Box>
+          ))}
         </Box>
       )}
       <ModalCrearMaterial open={createOpen} onClose={() => setCreateOpen(false)} />

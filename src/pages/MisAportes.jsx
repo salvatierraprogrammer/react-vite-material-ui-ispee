@@ -34,9 +34,9 @@ export default function MisAportes() {
       {myMaterials.length === 0 ? (
         <EmptyState title="Sin aportes" description="Todavía no subiste ningún material. ¡Compartí tus apuntes!" />
       ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2, alignItems: 'stretch' }}>
           {myMaterials.map((m) => (
-            <Box key={m.id} sx={{ position: 'relative', '&:hover .actions': { opacity: 1 } }}>
+            <Box key={m.id} sx={{ height: '100%', minWidth: 0, display: 'flex', flexDirection: 'column', position: 'relative', '&:hover .actions': { opacity: 1 } }}>
               <MaterialCard material={m} actions={
                 <><IconButton size="small" onClick={() => setEditTarget(m)} sx={{ width: 24, height: 24 }}><EditOutlined sx={{ fontSize: 14, color: 'primary.main' }} /></IconButton><IconButton size="small" sx={{ width: 24, height: 24 }}><ShareOutlined sx={{ fontSize: 14, color: 'text.secondary' }} /></IconButton><IconButton size="small" onClick={() => setDeleteTarget(m)} sx={{ width: 24, height: 24 }}><DeleteOutlined sx={{ fontSize: 14, color: '#EF4444' }} /></IconButton></>
               } />

@@ -100,8 +100,8 @@ export default function Perfil() {
   return (
     <Box>
       <Card sx={{ p: 2, mb: 1.5, borderRadius: '14px' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-          <Box sx={{ position: 'relative' }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, flexWrap: 'wrap' }}>
+          <Box sx={{ position: 'relative', flexShrink: 0 }}>
             <Badge
               overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               badgeContent={
@@ -117,23 +117,84 @@ export default function Perfil() {
             </Badge>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={handlePhotoSelect} />
           </Box>
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
             {editing ? (
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-                <TextField size="small" label="Nombre" value={name} onChange={(e) => setName(e.target.value)} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: 12 }, minWidth: 120 }} />
-                <TextField size="small" label="Apellido" value={lastName} onChange={(e) => setLastName(e.target.value)} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: 12 }, minWidth: 120 }} />
-                <IconButton onClick={handleSave} disabled={saving} color="primary" size="small">
-                  {saving ? <CircularProgress size={16} /> : <SaveOutlined />}
-                </IconButton>
-                <IconButton onClick={() => setEditing(false)} size="small"><CloseOutlined /></IconButton>
-              </Box>
+              <Stack spacing={2}>
+                <Typography sx={{ fontWeight: 700, fontSize: 14, color: 'text.secondary' }}>Editar perfil</Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
+                  <TextField
+                    size="small"
+                    label="Nombre"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    fullWidth
+                    slotProps={{ inputLabel: { shrink: true } }}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
+                  />
+                  <TextField
+                    size="small"
+                    label="Apellido"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    fullWidth
+                    slotProps={{ inputLabel: { shrink: true } }}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
+                  />
+                </Box>
+                <TextField
+                  size="small"
+                  label="Carrera"
+                  value={career}
+                  onChange={(e) => setCareer(e.target.value)}
+                  fullWidth
+                  placeholder="Ej: Profesorado de Educación Primaria"
+                  slotProps={{ inputLabel: { shrink: true } }}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
+                />
+                <TextField
+                  size="small"
+                  label="Descripción"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  fullWidth
+                  multiline
+                  minRows={3}
+                  placeholder="Contá un poco sobre vos…"
+                  slotProps={{ inputLabel: { shrink: true } }}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
+                />
+                <TextField
+                  select
+                  label="Año que cursás"
+                  value={academicYear}
+                  onChange={(e) => setAcademicYear(e.target.value)}
+                  size="small"
+                  fullWidth
+                  sx={{ maxWidth: { sm: 280 }, '& .MuiOutlinedInput-root': { borderRadius: '10px' } }}
+                  slotProps={{ inputLabel: { shrink: true } }}
+                >
+                  <MenuItem value="">Sin especificar</MenuItem>
+                  {years.map((y) => (
+                    <MenuItem key={y.id} value={String(y.id)}>{y.name}</MenuItem>
+                  ))}
+                </TextField>
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', flexWrap: 'wrap', pt: 0.5 }}>
+                  <Button variant="outlined" size="medium" startIcon={<CloseOutlined />} onClick={() => setEditing(false)} disabled={saving} sx={{ borderRadius: '10px', minWidth: 120 }}>
+                    Cancelar
+                  </Button>
+                  <Button variant="contained" size="medium" startIcon={saving ? undefined : <SaveOutlined />} onClick={handleSave} disabled={saving || !name.trim()} sx={{ borderRadius: '10px', minWidth: 140 }}>
+                    {saving ? <CircularProgress size={20} color="inherit" /> : 'Guardar'}
+                  </Button>
+                </Box>
+              </Stack>
             ) : (
               <>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                   <Typography sx={{ fontSize: 17, fontWeight: 800 }}>{user?.name || 'Usuario'}</Typography>
-                  <IconButton size="small" onClick={startEdit}><EditOutlined sx={{ fontSize: 14 }} /></IconButton>
+                  <IconButton size="small" onClick={startEdit} aria-label="Editar perfil"><EditOutlined sx={{ fontSize: 16 }} /></IconButton>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 0.5, mt: 0.25, flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
                   <Chip icon={<BadgeOutlined sx={{ fontSize: 11 }} />} label="Estudiante" size="small" sx={{ borderRadius: '5px', fontSize: 10, height: 22 }} />
                   <Chip label="ISPEE" size="small" sx={{ borderRadius: '5px', fontSize: 10, height: 22 }} />
                 </Box>
@@ -143,47 +204,31 @@ export default function Perfil() {
         </Box>
       </Card>
 
-      {(editing || user?.description || user?.career || user?.academicYear) && (
+      {!editing && (user?.description || user?.career || user?.academicYear) && (
         <Card sx={{ p: 2, mb: 1.5, borderRadius: '14px' }}>
           <Typography sx={{ fontWeight: 700, fontSize: 14, mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.75 }}>
             <WorkOutlineOutlined sx={{ fontSize: 16, color: 'primary.main' }} /> Información académica
           </Typography>
-          {editing ? (
-            <Stack spacing={1.5}>
-              <TextField size="small" label="Carrera" value={career} onChange={(e) => setCareer(e.target.value)} fullWidth placeholder="Ej: Profesorado de Educación Primaria"
-                slotProps={{ inputLabel: { shrink: true } }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: 12 } }} />
-              <Box sx={{ display: 'flex', gap: 1.5 }}>
-                <TextField size="small" label="Descripción" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline rows={3} placeholder="Contá un poco sobre vos..."
-                  slotProps={{ inputLabel: { shrink: true } }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: 12 } }} />
+          <Stack spacing={0.75}>
+            {user?.career && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <WorkOutlineOutlined sx={{ fontSize: 14, color: 'text.secondary' }} />
+                <Typography sx={{ fontSize: 12.5 }}>{user.career}</Typography>
               </Box>
-              <TextField select label="Año que cursás" value={academicYear} onChange={(e) => setAcademicYear(e.target.value)} size="small" sx={{ minWidth: 160, '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: 12 } }}
-                slotProps={{ inputLabel: { shrink: true } }}>
-                <MenuItem value="">Sin especificar</MenuItem>
-                {years.map((y) => <MenuItem key={y.id} value={String(y.id)}>{y.name}</MenuItem>)}
-              </TextField>
-            </Stack>
-          ) : (
-            <Stack spacing={0.75}>
-              {user?.career && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <WorkOutlineOutlined sx={{ fontSize: 14, color: 'text.secondary' }} />
-                  <Typography sx={{ fontSize: 12.5 }}>{user.career}</Typography>
-                </Box>
-              )}
-              {user?.description && (
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                  <DescriptionOutlined sx={{ fontSize: 14, color: 'text.secondary', mt: 0.25 }} />
-                  <Typography sx={{ fontSize: 12.5, color: 'text.secondary', lineHeight: 1.5 }}>{user.description}</Typography>
-                </Box>
-              )}
-              {user?.academicYear && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CalendarTodayOutlined sx={{ fontSize: 14, color: 'text.secondary' }} />
-                  <Typography sx={{ fontSize: 12.5 }}>{years.find((y) => y.id === user.academicYear)?.name || `${user.academicYear}° año`}</Typography>
-                </Box>
-              )}
-            </Stack>
-          )}
+            )}
+            {user?.description && (
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                <DescriptionOutlined sx={{ fontSize: 14, color: 'text.secondary', mt: 0.25 }} />
+                <Typography sx={{ fontSize: 12.5, color: 'text.secondary', lineHeight: 1.5 }}>{user.description}</Typography>
+              </Box>
+            )}
+            {user?.academicYear && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CalendarTodayOutlined sx={{ fontSize: 14, color: 'text.secondary' }} />
+                <Typography sx={{ fontSize: 12.5 }}>{years.find((y) => y.id === user.academicYear)?.name || `${user.academicYear}° año`}</Typography>
+              </Box>
+            )}
+          </Stack>
         </Card>
       )}
       {!editing && !user?.description && !user?.career && !user?.academicYear && (

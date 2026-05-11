@@ -38,6 +38,7 @@ export default function MaterialDetail() {
   const [loading, setLoading] = useState(true)
   const [guestOpen, setGuestOpen] = useState(false)
   const [guestAction, setGuestAction] = useState('')
+  const [guestForDownload, setGuestForDownload] = useState(false)
   const [comments, setComments] = useState([])
   const [commentInput, setCommentInput] = useState('')
   const [userRating, setUserRating] = useState(null)
@@ -78,28 +79,47 @@ export default function MaterialDetail() {
   const fColor = material?.fileName ? FILE_COLORS[material.fileName.split('.').pop()?.toLowerCase()] : undefined
 
   const handleFavorite = () => {
-    if (!isAuthenticated) { setGuestAction('guardar en favoritos'); setGuestOpen(true); return }
+    if (!isAuthenticated) {
+      setGuestForDownload(false)
+      setGuestAction('guardar en favoritos')
+      setGuestOpen(true)
+      return
+    }
     dispatch(toggleFavorite(material.id))
   }
 
   const isRestricted = currentUser?.blockedForWarnings || currentUser?.suspended || currentUser?.isBlocked || (currentUser?.warnings || 0) >= 3
 
   const handleDownload = async () => {
-    if (!isAuthenticated) { setGuestAction('descargar archivos'); setGuestOpen(true); return }
+    if (!isAuthenticated) {
+      setGuestForDownload(true)
+      setGuestOpen(true)
+      return
+    }
     if (isRestricted) { alert('Contactate con soporte para quitar el bloqueo ya que no cumpliste con tu conducta.'); return }
     if (material?.fileUrl) window.open(material.fileUrl, '_blank')
     await incrementDownload(id).catch(() => {})
   }
 
   const handleView = () => {
-    if (!isAuthenticated) { setGuestAction('visualizar el archivo'); setGuestOpen(true); return }
+    if (!isAuthenticated) {
+      setGuestForDownload(false)
+      setGuestAction('visualizar el archivo')
+      setGuestOpen(true)
+      return
+    }
     if (isRestricted) { alert('Contactate con soporte para quitar el bloqueo ya que no cumpliste con tu conducta.'); return }
     setViewerOpen(true)
   }
 
   const handleAddComment = async () => {
     if (!commentInput.trim()) return
-    if (!isAuthenticated) { setGuestAction('comentar'); setGuestOpen(true); return }
+    if (!isAuthenticated) {
+      setGuestForDownload(false)
+      setGuestAction('comentar')
+      setGuestOpen(true)
+      return
+    }
     await addComment({
       materialId: id,
       userId: currentUser.uid,
@@ -111,7 +131,12 @@ export default function MaterialDetail() {
   }
 
   const handleRate = async (rating) => {
-    if (!isAuthenticated) { setGuestAction('calificar'); setGuestOpen(true); return }
+    if (!isAuthenticated) {
+      setGuestForDownload(false)
+      setGuestAction('calificar')
+      setGuestOpen(true)
+      return
+    }
     setUserRating(rating)
     const result = await rateMaterial(id, currentUser.uid, rating)
     setAvgRating(result.averageRating)
@@ -310,7 +335,15 @@ export default function MaterialDetail() {
         fileSize={material?.fileSize}
         materialTitle={material?.title}
       />
-      <GuestModal open={guestOpen} onClose={() => setGuestOpen(false)} action={guestAction} />
+      <GuestModal
+        open={guestOpen}
+        onClose={() => {
+          setGuestOpen(false)
+          setGuestForDownload(false)
+        }}
+        action={guestAction}
+        forDownload={guestForDownload}
+      />
       <ReportModal
         open={reportOpen}
         onClose={() => setReportOpen(false)}

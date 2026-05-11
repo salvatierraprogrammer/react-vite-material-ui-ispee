@@ -1,4 +1,4 @@
-export const DRAWER_WIDTH = 220
+export const DRAWER_WIDTH = 244
 export const HEADER_HEIGHT = 56
 
 export const FILE_COLORS = { pdf: '#EF4444', docx: '#2563EB', pptx: '#EA580C' }
