@@ -124,26 +124,7 @@ export default function FileViewerModal({ open, onClose, fileUrl, fileName, file
               }}
             />
           </Box>
-        ) : fileType === 'pdf' ? (
-          <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
-            {!iframeLoaded && (
-              <Box sx={{
-                position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                bgcolor: '#0D0D1A', zIndex: 1,
-              }}>
-                <CircularProgress size={32} sx={{ color: alpha('#fff', 0.4) }} />
-              </Box>
-            )}
-            <iframe
-              src={fileUrl}
-              title={fileName}
-              width="100%"
-              height="100%"
-              style={{ border: 'none' }}
-              onLoad={() => setIframeLoaded(true)}
-            />
-          </Box>
-        ) : fileType === 'office' ? (
+        ) : fileType === 'pdf' || fileType === 'office' ? (
           <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
             {!iframeLoaded && (
               <Box sx={{
@@ -162,6 +143,24 @@ export default function FileViewerModal({ open, onClose, fileUrl, fileName, file
               style={{ border: 'none' }}
               onLoad={() => setIframeLoaded(true)}
             />
+            <Box sx={{
+              position: 'absolute', bottom: 0, left: 0, right: 0,
+              display: 'flex', gap: 1, p: 1.5,
+              background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+              justifyContent: 'center',
+            }}>
+              <Button
+                component="a"
+                href={fileUrl}
+                target="_blank"
+                size="small"
+                variant="contained"
+                startIcon={<DownloadOutlined sx={{ fontSize: 14 }} />}
+                sx={{ borderRadius: 1.5, fontSize: 11, fontWeight: 600, bgcolor: alpha('#fff', 0.15), color: '#fff', backdropFilter: 'blur(8px)', '&:hover': { bgcolor: alpha('#fff', 0.25) } }}
+              >
+                Abrir en nueva pestaña
+              </Button>
+            </Box>
           </Box>
         ) : (
           <Box sx={{ textAlign: 'center', p: 4, color: alpha('#fff', 0.5) }}>
