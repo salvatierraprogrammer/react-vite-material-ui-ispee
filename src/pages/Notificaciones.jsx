@@ -31,7 +31,8 @@ export default function Notificaciones() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { items: notifItems } = useSelector((s) => s.notifications)
-  const uid = useSelector((s) => s.auth.currentUser?.uid)
+  const { currentUser } = useSelector((s) => s.auth)
+  const uid = currentUser?.uid
   const [tab, setTab] = useState(0)
   const [selected, setSelected] = useState(null)
 
@@ -53,7 +54,9 @@ export default function Notificaciones() {
 
   const handleNavigate = (n) => {
     if (!n.read && n.id) dispatch(readNotification(n.id))
-    if (n.targetPath) navigate(n.targetPath)
+    const role = currentUser?.role
+    const path = n.type === 'alert' && role !== 'admin' ? '/notificaciones' : n.targetPath
+    if (path) navigate(path)
   }
 
   const handleDelete = (id) => {
@@ -170,6 +173,7 @@ export default function Notificaciones() {
         onMarkRead={handleMarkRead}
         onNavigate={handleNavigate}
         onDelete={handleDelete}
+        userRole={currentUser?.role}
       />
     </Box>
   )

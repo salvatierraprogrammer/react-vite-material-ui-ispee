@@ -83,7 +83,9 @@ export default function Header({ onMenuClick }) {
 
   const handleNotifClick = (n) => {
     setNotifAnchor(null)
-    if (n.targetPath) navigate(n.targetPath)
+    const role = currentUser?.role
+    const path = n.type === 'alert' && role !== 'admin' ? '/notificaciones' : n.targetPath
+    if (path) navigate(path)
     if (!n.read) markAsRead(n.id)
   }
 

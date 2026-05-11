@@ -21,6 +21,7 @@ const ResetPassword = lazy(() => import('../pages/ResetPassword'))
 const Configuracion = lazy(() => import('../pages/Configuracion'))
 const Seguridad = lazy(() => import('../pages/Seguridad'))
 const Notificaciones = lazy(() => import('../pages/Notificaciones'))
+const Ayuda = lazy(() => import('../pages/Ayuda'))
 
 // Admin pages
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))
@@ -62,6 +63,7 @@ export default function AppRouter() {
           <Route path="/configuracion" element={<Lazy><Protected><Configuracion /></Protected></Lazy>} />
           <Route path="/seguridad" element={<Lazy><Protected><Seguridad /></Protected></Lazy>} />
           <Route path="/notificaciones" element={<Lazy><Protected><Notificaciones /></Protected></Lazy>} />
+          <Route path="/ayuda" element={<Lazy><Ayuda /></Lazy>} />
         </Route>
 
         {/* Admin routes */}

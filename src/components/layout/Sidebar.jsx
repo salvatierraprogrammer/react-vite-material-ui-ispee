@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Typography, Button, Divider, useMediaQuery, useTheme } from '@mui/material'
-import { HomeOutlined, SchoolOutlined, FavoriteBorderOutlined, UploadFileOutlined, ChatOutlined, ForumOutlined, AutoStoriesOutlined, AdminPanelSettingsOutlined, DashboardOutlined } from '@mui/icons-material'
+import { Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Typography, Button, Divider, Badge, useMediaQuery, useTheme } from '@mui/material'
+import { HomeOutlined, SchoolOutlined, FavoriteBorderOutlined, UploadFileOutlined, ChatOutlined, ForumOutlined, AutoStoriesOutlined, AdminPanelSettingsOutlined, DashboardOutlined, NotificationsOutlined, HelpOutlineOutlined } from '@mui/icons-material'
 import { setSidebarOpen } from '../../redux/slices/uiSlice'
 import { DRAWER_WIDTH } from '../../constants'
 import { ROLES } from '../../services/authService'
@@ -14,13 +14,16 @@ const nav = [
   { label: 'Favoritos', icon: FavoriteBorderOutlined, path: '/favoritos' },
   { label: 'Mis aportes', icon: UploadFileOutlined, path: '/mis-aportes' },
   { label: 'Mensajes', icon: ChatOutlined, path: '/mensajes' },
+  { label: 'Notificaciones', icon: NotificationsOutlined, path: '/notificaciones' },
   { label: 'Foro', icon: ForumOutlined, path: '/foro' },
+  { label: 'Ayuda', icon: HelpOutlineOutlined, path: '/ayuda' },
 ]
 
 function SidebarContent({ onNavigate }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { isAuthenticated, currentUser } = useSelector((s) => s.auth)
+  const unreadCount = useSelector((s) => s.notifications.items.filter((n) => !n.read).length)
   const [guestOpen, setGuestOpen] = useState(false)
   const go = (path) => { navigate(path); onNavigate?.() }
 
@@ -39,9 +42,18 @@ function SidebarContent({ onNavigate }) {
         {nav.map((item) => {
           const Icon = item.icon
           const active = location.pathname === item.path
+          const isNotif = item.path === '/notificaciones'
           return (
             <ListItemButton key={item.label} onClick={() => go(item.path)} sx={{ borderRadius: '8px', mb: 0.25, bgcolor: active ? 'rgba(139,92,246,0.1)' : 'transparent', color: active ? 'primary.main' : 'text.secondary', '&:hover': { bgcolor: 'rgba(139,92,246,0.08)', color: 'primary.main' }, py: 0.5, px: 1 }}>
-              <ListItemIcon sx={{ minWidth: 30, color: 'inherit' }}><Icon sx={{ fontSize: 17 }} /></ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 30, color: 'inherit' }}>
+                {isNotif ? (
+                  <Badge badgeContent={unreadCount} color="primary" overlap="circular" slotProps={{ badge: { sx: { fontSize: 8, fontWeight: 700, height: 14, minWidth: 14 } } }}>
+                    <Icon sx={{ fontSize: 17 }} />
+                  </Badge>
+                ) : (
+                  <Icon sx={{ fontSize: 17 }} />
+                )}
+              </ListItemIcon>
               <ListItemText primary={item.label} slotProps={{ primary: { fontSize: 12.5, fontWeight: active ? 600 : 500 } }} />
             </ListItemButton>
           )

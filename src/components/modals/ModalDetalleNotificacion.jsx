@@ -31,10 +31,11 @@ function formatDate(dateStr) {
   })
 }
 
-export default function ModalDetalleNotificacion({ open, notificacion, onClose, onMarkRead, onNavigate, onDelete }) {
+export default function ModalDetalleNotificacion({ open, notificacion, onClose, onMarkRead, onNavigate, onDelete, userRole }) {
   if (!notificacion) return null
 
   const cfg = getNotifConfig(notificacion.type)
+  const displayPath = notificacion.type === 'alert' && userRole !== 'admin' ? '/notificaciones' : notificacion.targetPath
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
@@ -82,7 +83,7 @@ export default function ModalDetalleNotificacion({ open, notificacion, onClose, 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography sx={{ fontSize: 11.5, color: 'text.secondary' }}>Enlace</Typography>
               <Typography sx={{ fontSize: 11.5, color: 'primary.main', fontWeight: 500, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {notificacion.targetPath}
+                {displayPath}
               </Typography>
             </Box>
           )}
@@ -108,7 +109,7 @@ export default function ModalDetalleNotificacion({ open, notificacion, onClose, 
               onClick={() => { onNavigate(notificacion); onClose() }}
               sx={{ borderRadius: '8px', fontSize: 11.5, fontWeight: 600 }}
             >
-              Ir al contenido
+              {displayPath === '/notificaciones' ? 'Ver notificaciones' : 'Ir al contenido'}
             </Button>
           )}
           <Button
